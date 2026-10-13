@@ -1,25 +1,40 @@
-# CODING AGENTS: READ THIS FIRST
+# BETO · Coach de entretenimiento de Big Bola
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Implementación en React + Vite del diseño `project/BETO Coach Chat.dc.html` (Claude Design).
+El chat de BETO va dentro de una maqueta de bigbola.mx, junto con el sistema gráfico y el "cerebro" de BETO.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+## Correr
 
-## What you should do — IMPORTANT
+```bash
+npm install
+npm run dev          # http://localhost:5173 — sin IA: usa respuestas armadas
+npx netlify dev      # con la función /api/beto (requiere ANTHROPIC_API_KEY)
+npm run build        # dist/
+```
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+## Ajustes
 
-**Read `project/BETO Coach Chat.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+| Ajuste | URL (pruebas) | Variable de compilación | Default |
+|---|---|---|---|
+| IA en preguntas libres | `?ia=0` | `VITE_BETO_LIVE_AI` | encendida |
+| Tono | `?tono=suave\|normal\|rudo` | `VITE_BETO_INTENSITY` | `normal` |
+| Sonido del silbato | `?sonido=0` | `VITE_BETO_SOUND` | encendido |
+| Endpoint de IA | — | `VITE_BETO_ENDPOINT` | `/api/beto` |
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+Servidor (Netlify → Environment variables): `ANTHROPIC_API_KEY` (obligatoria para IA), `BETO_MODEL` (default `claude-sonnet-5-5`).
 
-## About the design files
+## Cómo está armado
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+- `src/beto/data.ts` — partidos, casino, sitio, jugadores, estadísticas y frases. **Datos de ejemplo**: se reemplazan por APIs reales antes de salir al público.
+- `src/beto/cards.ts` — tarjetas del chat (partido, pronóstico, juegos, pausa, jugadores, estadísticas, secciones). Las usan el cliente y el servidor.
+- `src/beto/scripted.ts` — respuestas armadas (botones rápidos, "La opinión de BETO" y respaldo si la IA falla).
+- `src/beto/useBeto.ts` — motor del chat: poses, reacciones por modo, silbatazo, regaños por inactividad (25 s / 30 s, hasta 3), gestos cada 6 s minimizado y cada 10 s abierto.
+- `src/beto/poses.ts` — los 6 gestos, posición de párpados (parpadeo cada 3 s) y animaciones.
+- `src/components/` — `BetoFigure` (personaje animado), `BetoChat` (chat y lanzador), `MessageCard`.
+- `netlify/functions/beto.ts` — `POST /api/beto`: Claude con herramientas (`buscar_partidos`, `pronostico_partido`, `juegos_casino`, `info_sitio`, `jugadores_clave`, `estadisticas_partido`, `sugerir_pausa`). Devuelve `{ text, mode, card }`. Usa respaldo automático del servidor ante rechazos (`fallbacks: "default"`).
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+## Pendiente antes de producción
 
-## Bundle contents
-
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `BETO Coach Chat System` project files (HTML prototypes, assets, components)
+- Conectar APIs reales de partidos, momios, casino, sitio y usuario (hoy todo es de ejemplo).
+- Limitar tasa por usuario en `/api/beto` y verificar mayoría de edad / sesión.
+- `project/` conserva el paquete original de Claude Design como referencia.
