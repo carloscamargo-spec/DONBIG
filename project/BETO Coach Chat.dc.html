@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap">
+<style>
+body{margin:0;background:#050D24;-webkit-font-smoothing:antialiased}
+a{color:#1E90FF;text-decoration:none}
+a:hover{color:#FFFFFF}
+input::placeholder{color:#7C89A6}
+@keyframes betoIdle{0%,100%{transform:translateY(0) rotate(0) scale(1)}50%{transform:translateY(-4px) rotate(-1.2deg) scale(1.012)}}
+@keyframes betoTalk{0%,100%{transform:rotate(0) translateY(0)}25%{transform:rotate(-2.5deg) translateY(-3px)}75%{transform:rotate(2deg) translateY(-1px)}}
+@keyframes betoCoach{0%,100%{transform:none}40%{transform:translateX(-10px) rotate(-4deg) scale(1.05)}70%{transform:translateX(-4px) rotate(-1deg) scale(1.02)}}
+@keyframes betoRegano{0%,100%{transform:none}15%{transform:translateX(-10px) rotate(-3deg) scale(1.06)}30%{transform:translateX(8px) rotate(2deg) scale(1.06)}45%{transform:translateX(-7px) rotate(-2deg) scale(1.05)}60%{transform:translateX(5px) rotate(1deg) scale(1.03)}80%{transform:translateX(-2px) scale(1.01)}}
+@keyframes betoImpulso{0%,100%{transform:none}30%{transform:translateY(-22px) scale(1.06)}50%{transform:translateY(0) scale(.98,1.02)}70%{transform:translateY(-8px) scale(1.02)}}
+@keyframes betoChiste{0%,100%{transform:none}20%{transform:rotate(-6deg)}40%{transform:rotate(5deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(2deg)}}
+@keyframes betoGlance{0%,100%{transform:none}30%,70%{transform:translateX(-6px) rotate(-2.5deg)}}
+@keyframes betoBlink{0%,94%,100%{transform:scaleY(0)}96%,97%{transform:scaleY(1)}99%{transform:scaleY(0)}}
+@keyframes betoJab{0%,100%{transform:none}30%{transform:translate(-8px,-6px) scale(1.09)}55%{transform:translate(-3px,-2px) scale(1.03)}75%{transform:translate(-6px,-4px) scale(1.06)}}
+@keyframes betoWhistle{0%,100%{transform:none}10%,30%,50%,70%{transform:translateY(-3px) scale(1.04,1.02)}20%,40%,60%,80%{transform:translateY(1px) scale(1.02,1.04)}}
+@keyframes betoPrrt{0%{opacity:0;transform:scale(.4) rotate(-14deg)}20%{opacity:1;transform:scale(1.15) rotate(-8deg)}35%,80%{opacity:1;transform:scale(1) rotate(-8deg)}100%{opacity:0;transform:scale(1.05) translateY(-10px) rotate(-8deg)}}
+@keyframes betoWave{0%{opacity:0;transform:scale(.6)}30%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
+@keyframes betoDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+</style>
+</helmet>
+<div style="font-family:'Figtree',system-ui,sans-serif;color:#FFFFFF;background:#050D24;min-height:100vh;">
+
+<section data-screen-label="01 Sitio + BETO" style="padding:40px clamp(16px,4vw,48px) 64px;max-width:1360px;margin:0 auto;box-sizing:border-box;">
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:24px;">
+    <div style="font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#1EE3A0;">Big Bola · Sistema BETO</div>
+    <h1 style="margin:0;font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-.02em;line-height:1.05;">BETO, tu coach de entretenimiento</h1>
+    <p style="margin:0;font-size:16px;color:#AFC0E0;max-width:640px;text-wrap:pretty;">Chat en vivo dentro del sitio. Lee partidos, recomienda juegos de casino, orienta en el sitio y te habla como entrenador. Prueba los botones o escríbele.</p>
+  </div>
+
+  <div style="border-radius:24px;overflow:hidden;border:1px solid #1A2D5C;background:radial-gradient(120% 90% at 75% 0%,#123077 0%,#0A1B45 45%,#06122E 100%);">
+    <div style="display:flex;align-items:center;gap:32px;padding:18px 32px;background:rgba(5,13,36,.7);border-bottom:1px solid #1A2D5C;flex-wrap:wrap;">
+      <div style="font-size:30px;font-weight:900;letter-spacing:-.04em;line-height:1;">BIG BOLA</div>
+      <nav style="display:flex;gap:28px;font-size:16px;font-weight:700;flex-wrap:wrap;">
+        <span>Deportes</span><span>Partidos</span><span>Casino</span><span>Mi equipo</span>
+      </nav>
+      <div style="margin-left:auto;padding:8px 16px;border-radius:999px;background:#0B4FF5;font-size:13px;font-weight:800;letter-spacing:.04em;">DEMO CONCEPTUAL</div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:32px;padding:40px 32px;align-items:flex-start;">
+      <div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:28px;">
+        <div>
+          <div style="font-size:clamp(44px,6.5vw,88px);font-weight:900;letter-spacing:-.04em;line-height:.95;">Vive el partido</div>
+          <div style="font-size:clamp(44px,6.5vw,88px);font-weight:900;letter-spacing:-.04em;line-height:.95;color:#1E90FF;">con tu equipo</div>
+          <p style="margin:16px 0 0;font-size:20px;color:#D5DEEF;">Información, análisis y pasión por el deporte.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <span style="padding:12px 22px;border-radius:999px;background:#1EE3A0;color:#03261A;font-weight:800;font-size:16px;">Fútbol</span>
+          <span style="padding:12px 22px;border-radius:999px;border:1px solid #2A4580;font-weight:700;font-size:16px;">Béisbol</span>
+          <span style="padding:12px 22px;border-radius:999px;border:1px solid #2A4580;font-weight:700;font-size:16px;">Básquetbol</span>
+          <span style="padding:12px 22px;border-radius:999px;border:1px solid #2A4580;font-weight:700;font-size:16px;">Casino</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="font-size:28px;font-weight:900;letter-spacing:-.01em;">Partidos destacados</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
+            <sc-for list="{{ siteMatches }}" as="p" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;background:rgba(6,18,46,.75);border:1px solid #22396E;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.04em;color:#AFC0E0;">{{ p.liga }}</span>
+                  <sc-if value="{{ p.isLive }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;background:#1EE3A0;color:#03261A;">EN VIVO</span>
+                  </sc-if>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <span style="font-size:22px;font-weight:900;">{{ p.local }}</span>
+                  <span style="font-size:15px;font-weight:800;color:#8EC9FF;">{{ p.centro }}</span>
+                  <span style="font-size:22px;font-weight:900;text-align:right;">{{ p.visita }}</span>
+                </div>
+                <button onClick="{{ p.ask }}" style="border:0;cursor:pointer;padding:12px 16px;border-radius:999px;background:#0B4FF5;color:#FFFFFF;font-family:inherit;font-size:15px;font-weight:800;" style-hover="background:#1E62FF;">La opinión de BETO ›</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:0 1 600px;min-width:300px;max-width:100%;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:12px;">
+        <sc-if value="{{ open }}" hint-placeholder-val="{{ true }}">
+          <div style="width:400px;max-width:100%;height:680px;margin-top:110px;display:flex;flex-direction:column;background:#FFFFFF;color:#0A1630;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.45);">
+            <div style="position:relative;height:124px;flex:0 0 124px;border-radius:22px 22px 0 0;background:radial-gradient(90% 140% at 85% 100%,#2A7BFF 0%,#0B4FF5 55%,#0A3FCC 100%);color:#FFFFFF;clip-path:inset(-160px 0 0 -70px);">
+              {{ figure }}
+              <button onClick="{{ close }}" aria-label="Minimizar" style="position:absolute;top:12px;right:12px;z-index:4;border:0;background:rgba(6,18,46,.45);color:#FFFFFF;font-size:18px;line-height:1;cursor:pointer;width:32px;height:32px;border-radius:10px;" style-hover="background:rgba(6,18,46,.7);">–</button>
+              <div style="position:absolute;left:0;right:0;bottom:0;height:14px;background:linear-gradient(to bottom,rgba(10,22,48,0),rgba(10,22,48,.18));"></div>
+            </div>
+
+            <div ref="{{ scrollRef }}" style="flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px;background:#F4F7FC;">
+              <sc-for list="{{ messages }}" as="m" hint-placeholder-count="1">
+                <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;justify-content:flex-end;">
+                    <div style="max-width:80%;padding:10px 14px;border-radius:16px 16px 4px 16px;background:#0B4FF5;color:#FFFFFF;font-size:14.5px;line-height:1.45;font-weight:500;">{{ m.text }}</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ m.isBeto }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:8px;align-items:flex-start;">
+                    <div style="width:30px;height:30px;flex:0 0 30px;border-radius:50%;background-color:#000;background-image:url({{ m.avatar }});background-size:230%;background-position:50% 30%;"></div>
+                    <div style="display:flex;flex-direction:column;gap:6px;max-width:88%;min-width:0;">
+                      <sc-if value="{{ m.hasMode }}" hint-placeholder-val="{{ true }}">
+                        <span style="align-self:flex-start;font-size:10px;font-weight:900;letter-spacing:.08em;padding:3px 8px;border-radius:999px;background:{{ m.modeBg }};color:{{ m.modeFg }};">{{ m.modeLabel }}</span>
+                      </sc-if>
+                      <div style="padding:10px 13px;border-radius:4px 16px 16px 16px;background:#FFFFFF;border:1px solid #E1E8F4;font-size:14.5px;line-height:1.45;text-wrap:pretty;">{{ m.text }}</div>
+
+                      <sc-if value="{{ m.isMatch }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:14px;background:#06122E;color:#FFFFFF;">
+                          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                            <span style="font-size:11px;font-weight:700;letter-spacing:.04em;color:#AFC0E0;">{{ m.match.liga }}</span>
+                            <sc-if value="{{ m.match.isLive }}" hint-placeholder-val="{{ false }}">
+                              <span style="font-size:10px;font-weight:900;padding:3px 7px;border-radius:999px;background:#1EE3A0;color:#03261A;">EN VIVO</span>
+                            </sc-if>
+                          </div>
+                          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;">
+                            <span style="font-size:18px;font-weight:900;">{{ m.match.local }}</span>
+                            <span style="font-size:15px;font-weight:900;color:#8EC9FF;text-align:center;">{{ m.match.centro }}</span>
+                            <span style="font-size:18px;font-weight:900;text-align:right;">{{ m.match.visita }}</span>
+                          </div>
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:#AFC0E0;">
+                            <div>Forma: <strong style="color:#FFFFFF;letter-spacing:.06em;">{{ m.match.formaLocal }}</strong></div>
+                            <div style="text-align:right;">Forma: <strong style="color:#FFFFFF;letter-spacing:.06em;">{{ m.match.formaVisita }}</strong></div>
+                          </div>
+                          <div style="padding:10px;border-radius:10px;background:#0C2152;font-size:13px;line-height:1.4;"><strong style="color:#1EE3A0;">Dato BETO · </strong>{{ m.match.dato }}</div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.isForecast }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#FFFFFF;border:1px solid #E1E8F4;">
+                          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+                            <span style="font-size:15px;font-weight:900;">Pronóstico BETO</span>
+                            <span style="font-size:12px;font-weight:700;color:#5A6785;">{{ m.fc.titulo }}</span>
+                          </div>
+                          <sc-for list="{{ m.fc.bars }}" as="b" hint-placeholder-count="3">
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;"><span>{{ b.label }}</span><span>{{ b.pct }}</span></div>
+                              <div style="height:8px;border-radius:999px;background:#E6ECF6;overflow:hidden;"><div style="height:100%;width:{{ b.pct }};background:#0B4FF5;border-radius:999px;"></div></div>
+                            </div>
+                          </sc-for>
+                          <div style="font-size:11px;color:#5A6785;">Orientativo. Sin resultados garantizados.</div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.isGames }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;border-radius:14px;background:#FFFFFF;border:1px solid #E1E8F4;overflow:hidden;">
+                          <sc-for list="{{ m.games }}" as="g" hint-placeholder-count="3">
+                            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #EEF3FA;">
+                              <div style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;">
+                                <span style="font-size:14px;font-weight:800;">{{ g.name }}</span>
+                                <span style="font-size:12px;color:#5A6785;">{{ g.meta }}</span>
+                              </div>
+                              <button onClick="{{ g.play }}" style="border:0;cursor:pointer;padding:7px 14px;border-radius:999px;background:#0B4FF5;color:#FFFFFF;font-family:inherit;font-size:13px;font-weight:800;" style-hover="background:#1E62FF;">Jugar</button>
+                            </div>
+                          </sc-for>
+                          <div style="padding:8px 12px;font-size:11px;color:#5A6785;">Catálogo de ejemplo. +18.</div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.isPause }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#FFF6E3;border:1px solid #FFB020;">
+                          <div style="font-size:15px;font-weight:900;color:#241600;">Banca de 10 minutos</div>
+                          <div style="font-size:13px;color:#4A3500;line-height:1.4;">Respira, sal a la banca y regresa con cabeza fría.</div>
+                          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button onClick="{{ m.onPause }}" style="border:0;cursor:pointer;padding:9px 14px;border-radius:999px;background:#241600;color:#FFFFFF;font-family:inherit;font-size:13px;font-weight:800;">Pausa 10 min</button>
+                            <button onClick="{{ m.onLimit }}" style="cursor:pointer;padding:9px 14px;border-radius:999px;background:transparent;border:1px solid #241600;color:#241600;font-family:inherit;font-size:13px;font-weight:800;">Poner un límite</button>
+                          </div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.isPlayers }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;border-radius:14px;background:#FFFFFF;border:1px solid #E1E8F4;overflow:hidden;">
+                          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:12px 12px 6px;">
+                            <span style="font-size:15px;font-weight:900;">Jugadores clave</span>
+                            <span style="font-size:12px;font-weight:700;color:#5A6785;">{{ m.pl.titulo }}</span>
+                          </div>
+                          <sc-for list="{{ m.pl.list }}" as="j" hint-placeholder-count="3">
+                            <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-top:1px solid #EEF3FA;">
+                              <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:10px;font-weight:900;letter-spacing:.06em;padding:3px 6px;border-radius:6px;background:#06122E;color:#FFFFFF;">{{ j.pos }}</span>
+                                <span style="font-size:14px;font-weight:800;">{{ j.name }}</span>
+                                <span style="margin-left:auto;font-size:12px;font-weight:700;color:#0B4FF5;">{{ j.team }}</span>
+                              </div>
+                              <span style="font-size:12px;font-weight:700;color:#33405E;">{{ j.stat }}</span>
+                              <div style="font-size:13px;line-height:1.4;padding:8px 10px;border-radius:10px;background:#F4F7FC;"><strong style="color:#0B4FF5;">BETO opina · </strong>{{ j.op }}</div>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.isStats }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#06122E;color:#FFFFFF;">
+                          <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:900;">
+                            <span>{{ m.st.local }}</span><span style="font-size:11px;font-weight:700;color:#AFC0E0;letter-spacing:.06em;">ESTADÍSTICAS</span><span>{{ m.st.visita }}</span>
+                          </div>
+                          <sc-for list="{{ m.st.rows }}" as="r" hint-placeholder-count="4">
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                              <div style="display:flex;justify-content:space-between;font-size:12px;"><strong>{{ r.a }}</strong><span style="color:#AFC0E0;">{{ r.label }}</span><strong>{{ r.b }}</strong></div>
+                              <div style="display:flex;gap:3px;height:6px;">
+                                <div style="width:{{ r.wa }};background:#1E90FF;border-radius:999px 0 0 999px;"></div>
+                                <div style="width:{{ r.wb }};background:#1EE3A0;border-radius:0 999px 999px 0;"></div>
+                              </div>
+                            </div>
+                          </sc-for>
+                          <div style="display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid #22396E;">
+                            <span style="font-size:11px;font-weight:900;letter-spacing:.06em;color:#FFB020;">POSIBILIDADES</span>
+                            <sc-for list="{{ m.st.pos }}" as="o" hint-placeholder-count="3">
+                              <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;"><span>{{ o.label }}</span><strong style="color:#1EE3A0;">{{ o.pct }}</strong></div>
+                            </sc-for>
+                          </div>
+                          <div style="font-size:11px;color:#AFC0E0;">Orientativo. Sin resultados garantizados.</div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.isLinks }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;border-radius:14px;background:#FFFFFF;border:1px solid #E1E8F4;overflow:hidden;">
+                          <sc-for list="{{ m.links }}" as="l" hint-placeholder-count="4">
+                            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #EEF3FA;cursor:pointer;" style-hover="background:#F4F7FC;">
+                              <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;">
+                                <span style="font-size:14px;font-weight:800;">{{ l.name }}</span>
+                                <span style="font-size:12px;color:#5A6785;">{{ l.desc }}</span>
+                              </div>
+                              <span style="font-size:20px;color:#0B4FF5;font-weight:700;">›</span>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-if>
+              </sc-for>
+              <sc-if value="{{ typing }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:8px;align-items:flex-end;">
+                  <div style="width:30px;height:30px;flex:0 0 30px;border-radius:50%;background-color:#000;background-image:url(assets/beto-brazos.png);background-size:230%;background-position:50% 30%;"></div>
+                  {{ typingDots }}
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="display:flex;gap:8px;padding:10px 12px;overflow-x:auto;border-top:1px solid #E1E8F4;background:#FFFFFF;">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3">
+                <button onClick="{{ c.go }}" onMouseEnter="{{ c.hover }}" style="flex:0 0 auto;cursor:pointer;padding:8px 12px;border-radius:999px;border:1.5px solid #C9D6EE;background:#FFFFFF;color:#0A1630;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap;" style-hover="border-color:#0B4FF5;color:#0B4FF5;">{{ c.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:8px;align-items:center;padding:4px 12px 8px;background:#FFFFFF;">
+              <input value="{{ input }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="Pregúntale a BETO…" style="flex:1;min-width:0;height:46px;padding:0 16px;border-radius:999px;border:1px solid #E1E8F4;background:#EEF3FA;font-family:inherit;font-size:15px;color:#0A1630;outline:none;"></input>
+              <button onClick="{{ onSend }}" aria-label="Enviar" style="width:46px;height:46px;flex:0 0 46px;border:0;border-radius:50%;background:#0B4FF5;color:#FFFFFF;font-size:20px;font-weight:900;cursor:pointer;" style-hover="background:#1E62FF;">↑</button>
+            </div>
+            <div style="padding:0 16px 10px;font-size:11px;color:#5A6785;background:#FFFFFF;">Pronósticos orientativos. Sin resultados garantizados. +18 · Juega con responsabilidad.</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0B4FF5;color:#FFFFFF;border-radius:0 0 22px 22px;">
+              <div style="font-size:22px;font-weight:900;letter-spacing:-.03em;line-height:1;">BETO</div>
+              <div style="font-size:13px;font-weight:600;line-height:1.2;">Tu coach de entretenimiento</div>
+              <span style="margin-left:auto;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 8px;border-radius:999px;background:{{ headerModeBg }};color:{{ headerModeFg }};box-shadow:0 0 0 1px rgba(255,255,255,.55);">{{ headerModeLabel }}</span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ closed }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-end;display:flex;flex-direction:column;align-items:flex-end;margin-top:60px;">
+            <div style="max-width:260px;margin-bottom:8px;padding:12px 14px;border-radius:18px 18px 4px 18px;background:#FFFFFF;color:#0A1630;font-size:14px;font-weight:600;line-height:1.4;box-shadow:0 20px 50px rgba(0,0,0,.4);">{{ nudge }}</div>
+            <div style="position:relative;width:230px;height:155px;margin-bottom:-16px;clip-path:inset(-200px -200px 0 -200px);">
+              {{ launcherFigure }}
+            </div>
+            <button onClick="{{ openChat }}" style="position:relative;z-index:2;width:230px;display:flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;padding:14px 26px;border-radius:999px;background:#0B4FF5;color:#FFFFFF;font-family:inherit;font-size:17px;font-weight:800;box-shadow:0 16px 40px rgba(11,79,245,.45);" style-hover="background:#1E62FF;">Habla con BETO</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="02 Sistema gráfico" style="padding:24px clamp(16px,4vw,48px) 64px;max-width:1360px;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;gap:24px;">
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#1EE3A0;">02</div>
+    <h2 style="margin:0;font-size:36px;font-weight:900;letter-spacing:-.02em;">Sistema gráfico</h2>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+    <div style="grid-column:1 / -1;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px;border-radius:20px;overflow:hidden;background:#000;border:1px solid #1A2D5C;">
+      <div style="display:flex;flex-direction:column;">
+        <img src="assets/beto-brazos.png" alt="BETO pose base" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;"></img>
+        <div style="padding:14px 18px;display:flex;justify-content:space-between;gap:8px;font-size:14px;"><strong>Pose base</strong><span style="color:#AFC0E0;">Coach · Impulso · Chiste</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;">
+        <img src="assets/beto-senala.png" alt="BETO señalando" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;"></img>
+        <div style="padding:14px 18px;display:flex;justify-content:space-between;gap:8px;font-size:14px;"><strong>Pose señala</strong><span style="color:#AFC0E0;">Regaño · Llamado a la acción</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:18px;padding:28px;background:#06122E;">
+        <div style="font-size:14px;font-weight:800;color:#AFC0E0;letter-spacing:.06em;text-transform:uppercase;">Avatares</div>
+        <div style="display:flex;gap:14px;align-items:center;">
+          <div style="width:72px;height:72px;border-radius:50%;border:3px solid #FFFFFF;background-color:#000;background-image:url(assets/beto-brazos.png);background-size:230%;background-position:50% 30%;"></div>
+          <div style="width:46px;height:46px;border-radius:50%;border:2px solid #FFFFFF;background-color:#000;background-image:url(assets/beto-senala.png);background-size:230%;background-position:50% 30%;"></div>
+          <div style="width:30px;height:30px;border-radius:50%;background-color:#000;background-image:url(assets/beto-brazos.png);background-size:230%;background-position:50% 30%;"></div>
+        </div>
+        <div style="font-size:14px;color:#D5DEEF;line-height:1.5;text-wrap:pretty;">Recorte circular al rostro. 72 px lanzador, 46 px encabezado, 30 px mensajes. El avatar del encabezado cambia a la pose señala en modo regaño.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:20px;background:#0A1B45;border:1px solid #1A2D5C;">
+      <div style="font-size:14px;font-weight:800;color:#AFC0E0;letter-spacing:.06em;text-transform:uppercase;">Color</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;">
+        <div style="display:flex;flex-direction:column;gap:6px;"><div style="height:56px;border-radius:12px;background:#0B4FF5;"></div><span style="font-size:13px;font-weight:700;">Azul Big Bola · #0B4FF5</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div style="height:56px;border-radius:12px;background:#1E90FF;"></div><span style="font-size:13px;font-weight:700;">Azul eléctrico · #1E90FF</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div style="height:56px;border-radius:12px;background:#06122E;border:1px solid #22396E;"></div><span style="font-size:13px;font-weight:700;">Noche · #06122E</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div style="height:56px;border-radius:12px;background:#EEF3FA;"></div><span style="font-size:13px;font-weight:700;">Hielo · #EEF3FA</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div style="height:56px;border-radius:12px;background:#1EE3A0;"></div><span style="font-size:13px;font-weight:700;">Cancha · #1EE3A0</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><div style="height:56px;border-radius:12px;background:#FFB020;"></div><span style="font-size:13px;font-weight:700;">Silbatazo · #FFB020</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;padding:24px;border-radius:20px;background:#0A1B45;border:1px solid #1A2D5C;">
+      <div style="font-size:14px;font-weight:800;color:#AFC0E0;letter-spacing:.06em;text-transform:uppercase;">Tipografía · Figtree</div>
+      <div style="font-size:56px;font-weight:900;letter-spacing:-.04em;line-height:.95;">¡A la cancha!</div>
+      <div style="font-size:22px;font-weight:800;">Encabezados y botones · 800</div>
+      <div style="font-size:15px;font-weight:500;line-height:1.5;color:#D5DEEF;">Mensajes de chat · 500, 14.5 px, interlineado 1.45. Etiquetas de modo en 900 con tracking abierto.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#0B4FF5;color:#FFFFFF;">MODO COACH</span>
+        <span style="font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#FFB020;color:#241600;">REGAÑO</span>
+        <span style="font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#1EE3A0;color:#03261A;">IMPULSO</span>
+        <span style="font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#8EC9FF;color:#06122E;">CHISTE</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:20px;background:#0A1B45;border:1px solid #1A2D5C;">
+      <div style="font-size:14px;font-weight:800;color:#AFC0E0;letter-spacing:.06em;text-transform:uppercase;">Lanzador</div>
+      <div style="padding:12px 14px;border-radius:16px 16px 4px 16px;background:#FFFFFF;color:#0A1630;font-size:14px;font-weight:600;line-height:1.4;align-self:flex-end;max-width:240px;">¡Oye, tú! Ya va a empezar el Clásico. ¿Lo leemos?</div>
+      <div style="display:flex;align-items:center;gap:10px;align-self:flex-end;padding:7px 20px 7px 7px;border-radius:999px;background:#0B4FF5;font-size:16px;font-weight:800;">
+        <span style="width:40px;height:40px;border-radius:50%;border:2px solid #FFFFFF;background-color:#000;background-image:url(assets/beto-senala.png);background-size:230%;background-position:50% 30%;"></span>Habla con BETO
+      </div>
+      <div style="font-size:13px;color:#AFC0E0;line-height:1.5;text-wrap:pretty;">La burbuja aparece solo con un disparador real: partido en vivo del equipo favorito, inicio de un partido destacado o regreso tras una pausa.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <div style="font-size:14px;font-weight:800;color:#AFC0E0;letter-spacing:.06em;text-transform:uppercase;">Modos de voz</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;">
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;">
+        <span style="align-self:flex-start;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#0B4FF5;color:#FFFFFF;">MODO COACH</span>
+        <div style="font-size:16px;font-weight:600;line-height:1.45;flex:1;">“Ok, campeón. América llega con tres victorias seguidas, pero Chivas aprieta de visita. Vamos a leerlo con calma.”</div>
+        <div style="font-size:12px;color:#5A6785;"><strong>Cuándo:</strong> análisis, datos, orientación en el sitio.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;">
+        <span style="align-self:flex-start;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#FFB020;color:#241600;">REGAÑO</span>
+        <div style="font-size:16px;font-weight:600;line-height:1.45;flex:1;">“¡Alto ahí! Perdiste tres seguidas y quieres doblar. Eso no es estrategia, es berrinche. Banca de 10 minutos.”</div>
+        <div style="font-size:12px;color:#5A6785;"><strong>Cuándo:</strong> rachas de pérdida, querer recuperar, jugar enojado.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;">
+        <span style="align-self:flex-start;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#1EE3A0;color:#03261A;">IMPULSO</span>
+        <div style="font-size:16px;font-weight:600;line-height:1.45;flex:1;">“¡Eso es! Pusiste tu límite y lo respetaste. Así se juega: con cabeza y con plan.”</div>
+        <div style="font-size:12px;color:#5A6785;"><strong>Cuándo:</strong> límites respetados, buenas decisiones, regreso tras pausa.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;">
+        <span style="align-self:flex-start;font-size:10px;font-weight:900;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:#8EC9FF;color:#06122E;">CHISTE</span>
+        <div style="font-size:16px;font-weight:600;line-height:1.45;flex:1;">“Tu defensa está como portón de rancho: abierta todo el día. Ya, ya… ¿analizamos algo serio?”</div>
+        <div style="font-size:12px;color:#5A6785;"><strong>Cuándo:</strong> romper tensión, ambiente de partido, piques entre aficiones.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-screen-label="03 Cerebro de BETO" style="padding:24px clamp(16px,4vw,48px) 80px;max-width:1360px;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;gap:24px;">
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#1EE3A0;">03</div>
+    <h2 style="margin:0;font-size:36px;font-weight:900;letter-spacing:-.02em;">Cerebro de BETO</h2>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+    <div style="padding:18px;border-radius:16px;background:#0A1B45;border:1px solid #1A2D5C;display:flex;flex-direction:column;gap:6px;"><span style="font-size:13px;font-weight:900;color:#1EE3A0;">1 · Escucha</span><span style="font-size:15px;color:#D5DEEF;line-height:1.45;">Mensaje, botón o clic en “La opinión de BETO”.</span></div>
+    <div style="padding:18px;border-radius:16px;background:#0A1B45;border:1px solid #1A2D5C;display:flex;flex-direction:column;gap:6px;"><span style="font-size:13px;font-weight:900;color:#1EE3A0;">2 · Lee la intención</span><span style="font-size:15px;color:#D5DEEF;line-height:1.45;">Partido, pronóstico, casino, sitio o señal de riesgo. Elige el modo de voz.</span></div>
+    <div style="padding:18px;border-radius:16px;background:#0A1B45;border:1px solid #1A2D5C;display:flex;flex-direction:column;gap:6px;"><span style="font-size:13px;font-weight:900;color:#1EE3A0;">3 · Consulta APIs</span><span style="font-size:15px;color:#D5DEEF;line-height:1.45;">Solo responde con datos reales de las fuentes conectadas.</span></div>
+    <div style="padding:18px;border-radius:16px;background:#0A1B45;border:1px solid #1A2D5C;display:flex;flex-direction:column;gap:6px;"><span style="font-size:13px;font-weight:900;color:#1EE3A0;">4 · Responde</span><span style="font-size:15px;color:#D5DEEF;line-height:1.45;">Máximo tres frases y una tarjeta con el dato.</span></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+    <div style="padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;display:flex;flex-direction:column;gap:8px;"><strong style="font-size:17px;font-weight:900;">Partidos</strong><span style="font-size:14px;line-height:1.55;color:#33405E;">Calendario, marcador en vivo, alineaciones, estadísticas, forma reciente, historial directo.</span></div>
+    <div style="padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;display:flex;flex-direction:column;gap:8px;"><strong style="font-size:17px;font-weight:900;">Momios</strong><span style="font-size:14px;line-height:1.55;color:#33405E;">Cuotas por mercado, movimientos de línea, probabilidad implícita.</span></div>
+    <div style="padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;display:flex;flex-direction:column;gap:8px;"><strong style="font-size:17px;font-weight:900;">Casino</strong><span style="font-size:14px;line-height:1.55;color:#33405E;">Catálogo, proveedor, RTP, volatilidad, mesas en vivo, jackpots activos.</span></div>
+    <div style="padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;display:flex;flex-direction:column;gap:8px;"><strong style="font-size:17px;font-weight:900;">Sitio</strong><span style="font-size:14px;line-height:1.55;color:#33405E;">Secciones, promociones vigentes, cuenta, depósitos y retiros, ayuda.</span></div>
+    <div style="padding:20px;border-radius:18px;background:#FFFFFF;color:#0A1630;display:flex;flex-direction:column;gap:8px;"><strong style="font-size:17px;font-weight:900;">Usuario</strong><span style="font-size:14px;line-height:1.55;color:#33405E;">Equipo favorito, deportes que sigue, límites activos, sesión actual.</span></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px;padding:24px;border-radius:20px;background:#0A1B45;border:1px solid #FFB020;">
+    <div style="font-size:14px;font-weight:800;color:#FFB020;letter-spacing:.06em;text-transform:uppercase;">Reglas del coach</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 24px;font-size:15px;line-height:1.5;color:#D5DEEF;">
+      <span>Nunca promete resultados. Todo pronóstico es orientativo.</span>
+      <span>Detecta rachas de pérdida y propone pausa o límite.</span>
+      <span>Si no hay dato en la API, lo dice. No inventa.</span>
+      <span>Solo +18. Nunca incentiva a recuperar pérdidas.</span>
+      <span>Puede regañar la decisión, nunca a la persona.</span>
+      <span>Chistes de cancha, sin ofender aficiones ni personas.</span>
+    </div>
+  </div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;liveAI&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;BETO&quot;},&quot;intensity&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;suave&quot;,&quot;normal&quot;,&quot;rudo&quot;],&quot;default&quot;:&quot;normal&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;BETO&quot;},&quot;sound&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;BETO&quot;}}">
+const P = [
+  { id:'ame-chi', liga:'Liga MX · Jornada 12', local:'América', visita:'Chivas', hora:'Sáb 19:05', formaLocal:'G G G E P', formaVisita:'G E G P G', prob:[48,27,25], dato:'América ganó 4 de sus últimos 6 clásicos en casa.' },
+  { id:'tig-mty', liga:'Liga MX · Jornada 12', local:'Tigres', visita:'Monterrey', marcador:"1 - 1 · 63'", formaLocal:'E G P G E', formaVisita:'G G E G P', prob:[34,38,28], dato:'Monterrey suma 7 tiros a puerta; Tigres solo 3.' },
+  { id:'dod-yan', liga:'MLB · Serie Mundial', local:'Dodgers', visita:'Yankees', hora:'Dom 18:08', formaLocal:'G G P G G', formaVisita:'G P G G P', prob:[55,0,45], dato:'El abridor de Dodgers trae 1.98 de efectividad en octubre.' },
+  { id:'lal-gsw', liga:'NBA · Temporada regular', local:'Lakers', visita:'Warriors', hora:'Mar 21:30', formaLocal:'P G G P G', formaVisita:'G G G P G', prob:[46,0,54], dato:'Warriors promedia 15 triples por partido de visita.' }
+];
+const CASINO = [
+  { name:'Blackjack clásico', tipo:'Cartas', rtp:'99.4%', vol:'Baja', estilo:'tranquilo' },
+  { name:'Ruleta en vivo', tipo:'Mesa en vivo', rtp:'97.3%', vol:'Media', estilo:'tranquilo' },
+  { name:'Crash Gol', tipo:'Instantáneo', rtp:'97.0%', vol:'Alta', estilo:'adrenalina' },
+  { name:'Fiesta Azteca', tipo:'Tragamonedas', rtp:'96.1%', vol:'Alta', estilo:'adrenalina' }
+];
+const SITIO = [
+  { name:'Partidos en vivo', desc:'Marcadores y estadísticas al momento', tags:'vivo partidos marcador' },
+  { name:'Casino', desc:'Mesas en vivo, cartas y tragamonedas', tags:'casino juegos ruleta slots' },
+  { name:'Promociones', desc:'Bonos y retos vigentes', tags:'promo bono promociones' },
+  { name:'Mi cuenta', desc:'Depósitos, retiros y verificación', tags:'cuenta deposito retiro pago verificacion' },
+  { name:'Juego responsable', desc:'Límites, pausas y autoexclusión', tags:'limite pausa responsable autoexclusion' },
+  { name:'Ayuda', desc:'Chat de soporte y preguntas frecuentes', tags:'ayuda soporte contacto' }
+];
+const MODES = {
+  COACH:{ label:'MODO COACH', bg:'#0B4FF5', fg:'#FFFFFF' },
+  REGANO:{ label:'REGAÑO', bg:'#FFB020', fg:'#241600' },
+  IMPULSO:{ label:'IMPULSO', bg:'#1EE3A0', fg:'#03261A' },
+  CHISTE:{ label:'CHISTE', bg:'#8EC9FF', fg:'#06122E' }
+};
+const JUG = {
+  'ame-chi': [
+    { name:'Henry Martín', team:'América', pos:'DEL', stat:'7 goles · 3 asist. · 2.4 tiros/p', op:'Huele el área como nadie. Si le llega limpia, la mete.' },
+    { name:'Álvaro Fidalgo', team:'América', pos:'MED', stat:'89% pases · 4 asist.', op:'El cerebro. Si Chivas no lo presiona, América juega a placer.' },
+    { name:'Roberto Alvarado', team:'Chivas', pos:'EXT', stat:'4 goles · 2.1 regates/p', op:'El más peligroso de visita. Desequilibra por derecha.' }
+  ],
+  'tig-mty': [
+    { name:'André-Pierre Gignac', team:'Tigres', pos:'DEL', stat:'5 goles · 1 hoy', op:'Ya anotó. Con espacios te castiga, pero hoy está muy solo.' },
+    { name:'Sergio Canales', team:'Monterrey', pos:'MED', stat:'3 pases clave hoy', op:'Está moviendo los hilos. Todo lo peligroso de Rayados pasa por él.' },
+    { name:'Germán Berterame', team:'Monterrey', pos:'DEL', stat:'4 tiros hoy · 1 gol', op:'Está encendido. Si alguien desempata, apuesto a que es él.' }
+  ],
+  'dod-yan': [
+    { name:'Shohei Ohtani', team:'Dodgers', pos:'BD', stat:'.310 AVG · 4 HR en playoffs', op:'Un batazo y te cambia la serie. Respeto total.' },
+    { name:'Aaron Judge', team:'Yankees', pos:'JD', stat:'.265 AVG · 3 HR en playoffs', op:'Arrancó frío pero cuando se calienta no hay quien lo pare.' }
+  ],
+  'lal-gsw': [
+    { name:'LeBron James', team:'Lakers', pos:'AL', stat:'25.4 pts · 8.1 reb · 7.9 ast', op:'El rey sigue mandando. Controla el ritmo del partido.' },
+    { name:'Stephen Curry', team:'Warriors', pos:'BA', stat:'27.8 pts · 4.9 triples/p', op:'Si se calienta desde lejos, se acabó la discusión.' }
+  ]
+};
+const STATS = {
+  'ame-chi': { rows:[['Goles por partido',2.1,1.4],['Posesión %',58,47],['Tiros a puerta/p',6.2,4.1],['Goles recibidos/p',0.8,1.1]], pos:[['Ambos anotan','58%'],['Más de 2.5 goles','52%'],['América gana y ambos anotan','27%']] },
+  'tig-mty': { rows:[['Posesión hoy %',44,56],['Tiros a puerta',3,7],['Córners',2,5],['Tarjetas',2,1]], pos:[['Habrá otro gol','71%'],['Monterrey anota el siguiente','46%'],['Termina empatado','38%']] },
+  'dod-yan': { rows:[['Carreras/juego',5.4,4.9],['AVG equipo',.262,.251],['ERA abridores',3.12,3.65],['HR en playoffs',18,15]], pos:[['Más de 8.5 carreras','49%'],['Dodgers gana por 2+','31%'],['Hay home run de Ohtani','34%']] },
+  'lal-gsw': { rows:[['Puntos/p',114.2,117.6],['Triples/p',11.8,15.1],['Rebotes/p',45.3,43.9],['% tiro de campo',48.1,46.7]], pos:[['Más de 228.5 puntos','55%'],['Curry 5+ triples','47%'],['Se define por 5 o menos','41%']] }
+};
+const NAGS = [
+  ['¡Ey! ¿Te dormiste en la banca? 😤 Aquí se viene a jugar, no a calentar la silla. ¿Qué analizamos?', 'REGANO'],
+  ['Sigo aquí parado como poste de portería 🥅. Dame un equipo y armamos la jugada, campeón.', 'CHISTE'],
+  ['Última llamada 📣. Si no me dices nada, me voy a ver el Tigres–Monterrey solo.', 'REGANO']
+];
+const CHIPS = ['Analizar el partido','Jugadores clave','Estadísticas y posibilidades','Ver un pronóstico','¿Qué hay en vivo?','Recomiéndame un juego','Voy perdiendo, ¿le subo?','Cuéntame un chiste','Ayuda con el sitio'];
+const CHIP_Q = {
+  'Analizar el partido':'analisis america chivas',
+  'Ver un pronóstico':'pronostico america chivas',
+  'Jugadores clave':'jugadores america chivas',
+  'Estadísticas y posibilidades':'estadisticas america chivas',
+  '¿Qué hay en vivo?':'en vivo',
+  'Recomiéndame un juego':'casino juego',
+  'Voy perdiendo, ¿le subo?':'perdiendo le subo',
+  'Cuéntame un chiste':'chiste',
+  'Ayuda con el sitio':'ayuda sitio'
+};
+const EYES = {"saludo":[{"l":"61.50%","t":"26.72%","w":"3.40%","h":"3.68%"},{"l":"68.50%","t":"25.12%","w":"3.60%","h":"4.00%"}],"lado":[{"l":"61.30%","t":"28.00%","w":"3.20%","h":"3.36%"},{"l":"69.30%","t":"27.36%","w":"3.00%","h":"3.04%"}],"pito":[{"l":"60.90%","t":"28.00%","w":"3.40%","h":"3.04%"},{"l":"68.50%","t":"27.04%","w":"3.20%","h":"3.36%"}],"festejo":[{"l":"61.10%","t":"24.48%","w":"4.40%","h":"5.92%"},{"l":"68.70%","t":"23.84%","w":"4.20%","h":"5.92%"}],"duda":[{"l":"61.30%","t":"28.32%","w":"3.80%","h":"3.68%"},{"l":"68.90%","t":"26.08%","w":"3.60%","h":"4.32%"}],"frente":[{"l":"61.70%","t":"28.96%","w":"2.80%","h":"3.36%"},{"l":"69.90%","t":"27.68%","w":"2.60%","h":"3.36%"}]};
+const POSES = { saludo: 'assets/beto-saludo.png', lado: 'assets/beto-lado.png', pito: 'assets/beto-pito.png', festejo: 'assets/beto-festejo.png', duda: 'assets/beto-duda.png', frente: 'assets/beto-frente.png' };
+const IMG_A = 'assets/beto-brazos.png', IMG_B = 'assets/beto-senala.png';
+const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const findP = t => P.find(p => t.includes(norm(p.local)) || t.includes(norm(p.visita)));
+let uid = 0;
+
+class Component extends DCLogic {
+  scrollRef = React.createRef();
+  figRefA = React.createRef();
+  figRefB = React.createRef();
+  syncAnim() {
+    [this.figRefA.current, this.figRefB.current].forEach(el => {
+      if (!el) return;
+      const a = el.getAttribute('data-anim'), id = el.getAttribute('data-rid') + a;
+      if (el._rid === id) return;
+      el._rid = id;
+      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = a;
+    });
+  }
+  state = {
+    open: true, input: '', typing: false, chipOffset: 0, last: null,
+    messages: [this.mk('beto', '¿Qué onda, campeón? 👋 Soy BETO, tu coach. Aquí no se viene a adivinar, se viene a leer el partido. ¿A qué equipo le vas?', 'COACH')]
+  };
+
+  mk(from, text, mode, card) {
+    const m = MODES[mode];
+    return { id: ++uid, isUser: from === 'user', isBeto: from === 'beto', text, modeKey: mode, hasMode: !!m,
+      modeLabel: m && m.label, modeBg: m && m.bg, modeFg: m && m.fg, avatar: mode === 'REGANO' ? IMG_B : IMG_A, ...(card || {}) };
+  }
+  matchCard(p) {
+    return { isMatch: true, match: { liga: p.liga, local: p.local, visita: p.visita, centro: p.marcador || p.hora, isLive: !!p.marcador, formaLocal: p.formaLocal, formaVisita: p.formaVisita, dato: p.dato } };
+  }
+  forecastCard(p) {
+    const labels = [p.local, 'Empate', p.visita];
+    return { isForecast: true, fc: { titulo: p.local + ' vs ' + p.visita, bars: p.prob.map((v, i) => ({ label: labels[i], pct: v + '%', v })).filter(b => b.v > 0) } };
+  }
+  gamesCard(list) {
+    return { isGames: true, games: list.map(g => ({ name: g.name, meta: g.tipo + ' · RTP ' + g.rtp + ' · Vol. ' + g.vol,
+      play: () => this.push(this.mk('beto', g.name + ' en la cancha. Antes de entrar: tú pones el límite, no la mesa. ¿Cuánto te vas a jugar hoy como máximo?', 'COACH')) })) };
+  }
+  pauseCard() {
+    return { isPause: true,
+      onPause: () => this.push(this.mk('beto', '¡Eso, campeón! Pausa activada. Los grandes también salen a la banca. Te veo en 10.', 'IMPULSO')),
+      onLimit: () => this.push(this.mk('beto', 'Límite puesto. Así se juega: con plan. Lo ajustas cuando quieras en Mi cuenta › Juego responsable.', 'IMPULSO')) };
+  }
+  playersCard(p) {
+    return { isPlayers: true, pl: { titulo: p.local + ' vs ' + p.visita, list: (JUG[p.id] || []).map(j => ({ ...j })) } };
+  }
+  statsCard(p) {
+    const st = STATS[p.id]; if (!st) return null;
+    return { isStats: true, st: { local: p.local, visita: p.visita, rows: st.rows.map(([label, a, b]) => {
+      const tot = (a + b) || 1; return { label, a: String(a), b: String(b), wa: Math.round(a / tot * 100) + '%', wb: Math.round(b / tot * 100) + '%' }; }),
+      pos: st.pos.map(([label, pct]) => ({ label, pct })) } };
+  }
+  linksCard(list) { return { isLinks: true, links: list.map(l => ({ name: l.name, desc: l.desc })) }; }
+
+  push(msg) { this.setState(s => ({ messages: [...s.messages, msg] })); this.reactTo(msg.modeKey, !!(msg.isMatch || msg.isForecast || msg.isGames || msg.isLinks || msg.isPlayers || msg.isStats)); }
+
+  bump(mode) { this.setState(s => ({ react: { id: (s.react ? s.react.id : 0) + 1, mode } })); }
+  setPose(pose, anim, ms, keep) {
+    clearTimeout(this.poseT);
+    this.setState(s => ({ pose, basePose: keep ? pose : (s.basePose || 'saludo') }));
+    if (anim) this.bump(anim);
+    if (ms) this.poseT = setTimeout(() => this.setState(s => ({ pose: s.basePose || 'saludo' })), ms);
+  }
+  point(ms = 2600) { this.setPose('lado', 'JAB', ms); }
+  whistle() {
+    this.setState(s => ({ whistleId: (s.whistleId || 0) + 1, whistling: true }));
+    this.setPose('pito', 'WHISTLE', 1400);
+    clearTimeout(this.whT);
+    this.whT = setTimeout(() => this.setState({ whistling: false }), 1100);
+    if (this.state.open) this.playWhistle();
+  }
+  ensureAudio() {
+    if (!(this.props.sound ?? true)) return null;
+    try {
+      if (!this.ac) this.ac = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ac.state === 'suspended') this.ac.resume();
+      return this.ac;
+    } catch (e) { return null; }
+  }
+  playWhistle() {
+    const ac = this.ensureAudio(); if (!ac) return;
+    const t0 = ac.currentTime + 0.02;
+    [[0, 0.16], [0.22, 0.5]].forEach(([st, dur]) => {
+      const o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+      o.type = 'sine'; o.frequency.value = 2900;
+      lfo.frequency.value = 34; lg.gain.value = 260; lfo.connect(lg); lg.connect(o.frequency);
+      g.gain.setValueAtTime(0, t0 + st);
+      g.gain.linearRampToValueAtTime(0.12, t0 + st + 0.02);
+      g.gain.setValueAtTime(0.12, t0 + st + dur - 0.04);
+      g.gain.linearRampToValueAtTime(0, t0 + st + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t0 + st); lfo.start(t0 + st); o.stop(t0 + st + dur + 0.02); lfo.stop(t0 + st + dur + 0.02);
+    });
+  }
+  reactTo(mode, hasCard) {
+    if (mode === 'REGANO') { this.whistle(); setTimeout(() => this.setPose('frente', 'REGANO', 0, true), 1300); return; }
+    if (mode === 'COACH' && hasCard) { this.setPose('lado', 'JAB', 0, true); return; }
+    if (mode === 'COACH') { this.setPose('duda', 'COACH', 0, true); return; }
+    if (mode === 'IMPULSO') { this.setPose('festejo', 'IMPULSO', 0, true); return; }
+    if (mode === 'CHISTE') { this.setPose('saludo', 'CHISTE', 0, true); return; }
+    this.bump(mode);
+  }
+  pokeBeto() {
+    this.ensureAudio();
+    const lines = [
+      ['¡Oye! A mí no me piques, picale a un partido. ¿Qué analizamos?', 'CHISTE'],
+      ['¡Silbatazo! Tiempo fuera. ¿Qué necesitas, campeón?', 'COACH'],
+      ['Si me vuelves a picar te mando a dar vueltas a la cancha. Mejor pregúntame algo.', 'CHISTE']
+    ];
+    const [text, mode] = lines[(this.pokes = (this.pokes || 0) + 1) % lines.length];
+    this.whistle();
+    setTimeout(() => this.setState(s => ({ messages: [...s.messages, this.mk('beto', text, mode)] })), 500);
+  }
+
+  componentDidMount() {
+    this.closedTimer = setInterval(() => {
+      if (this.state.open) return;
+      const c = (this.state.cycle || 0) + 1;
+      this.setState({ cycle: c });
+      [() => this.setPose('saludo', 'CHISTE', 0, true), () => this.setPose('lado', 'JAB', 0, true), () => this.whistle(), () => this.setPose('festejo', 'IMPULSO', 0, true), () => this.setPose('duda', 'GLANCE', 0, true)][c % 5]();
+    }, 6000);
+    ['saludo','lado','pito','festejo','duda','frente'].forEach(p => { const im = new Image(); im.src = POSES[p]; });
+    this.lastAct = Date.now(); this.nags = 0;
+    this.nagTimer = setInterval(() => {
+      if (!this.state.open || this.state.typing || this.nags >= NAGS.length) return;
+      if (Date.now() - this.lastAct < (this.nags ? 30000 : 25000)) return;
+      const [text, mode] = NAGS[this.nags++];
+      this.lastAct = Date.now();
+      if (mode === 'REGANO') this.whistle();
+      setTimeout(() => this.push(this.mk('beto', text, mode)), mode === 'REGANO' ? 500 : 0);
+    }, 3000);
+    this.idleTimer = setInterval(() => {
+      if (this.state.typing || !this.state.open || this.state.pose !== (this.state.basePose || 'saludo')) return;
+      const opts = [['lado', 'JAB'], ['saludo', 'CHISTE'], ['festejo', 'IMPULSO'], ['duda', 'GLANCE'], ['pito', 'WHISTLE']].filter(o => o[0] !== this.state.pose);
+      const o = opts[Math.floor(Math.random() * opts.length)];
+      this.setPose(o[0], o[1], 4000);
+    }, 10000);
+  }
+  componentWillUnmount() { clearInterval(this.idleTimer); clearInterval(this.nagTimer); clearInterval(this.closedTimer); clearTimeout(this.poseT); clearTimeout(this.whT); }
+
+  scripted(raw) {
+    const t = norm(raw);
+    if (/perd|recuper|doblar|le subo|todo o nada|desquit/.test(t))
+      return { text: '¡Alto ahí! 🛑 ¿Vas perdiendo y quieres subirle para recuperar? Eso no es estrategia, es berrinche. Banca de 10 minutos y regresas con cabeza fría.', mode: 'REGANO', card: this.pauseCard() };
+    if (/chiste|broma|risa/.test(t))
+      return { text: '¿Sabes por qué la defensa de tu equipo no usa GPS? Porque igual siempre llega tarde 😂. Ya, ya… ¿analizamos algo serio?', mode: 'CHISTE' };
+    if (/vivo|ahorita|ahora/.test(t))
+      return { text: "¡Esto está que arde! 🔥 Tigres–Monterrey va 1-1 al 63'. Rayados está llegando más y Tigres se está colgando del travesaño.", mode: 'COACH', card: this.matchCard(P[1]) };
+    if (/jugador|figura|goleador|estrella|crack/.test(t)) {
+      const p = findP(t) || P[0];
+      return { text: 'Estos son los que mueven el partido 💪. Mi opinión va en cada uno; tú decides a quién seguirle la pista.', mode: 'COACH', card: this.playersCard(p) };
+    }
+    if (/estadist|numeros|stats|posibilidad|mercado/.test(t)) {
+      const p = findP(t) || P[0];
+      return { text: 'Números sobre la mesa 📊. ' + p.local + ' domina casi todo, pero ojo con las posibilidades: ambos equipos tienen gol.', mode: 'COACH', card: this.statsCard(p) };
+    }
+    if (/pronost|quien gana|ganador|favorito/.test(t)) {
+      const p = findP(t) || P[0];
+      return { text: 'Mi lectura, no mi bola de cristal: ' + p.local + ' trae ventaja, pero esto no está escrito. Úsalo como guía, no como promesa.', mode: 'COACH', card: this.forecastCard(p) };
+    }
+    if (/casino|juego|ruleta|slot|tragamon|blackjack|crash/.test(t))
+      return { text: '¿Tranquilo o con adrenalina? Te armé alineación de los dos 🎰. Blackjack si quieres pensar, Crash Gol si quieres sudar.', mode: 'COACH', card: this.gamesCard(CASINO) };
+    if (/ayuda|cuenta|deposit|retiro|promo|limite|sitio|donde/.test(t)) {
+      const hit = SITIO.filter(s => s.tags.split(' ').some(k => t.includes(k)));
+      return { text: 'Te doy el mapa de la cancha. ¿A dónde vamos?', mode: 'COACH', card: this.linksCard(hit.length ? hit : SITIO.slice(0, 4)) };
+    }
+    const p = findP(t);
+    if (p) return { text: p.local + ' contra ' + p.visita + '. Aquí está la lectura, campeón. Fíjate en la forma reciente antes de emocionarte.', mode: 'COACH', card: this.matchCard(p) };
+    return { text: 'Dame algo con qué trabajar, campeón: un equipo, un deporte o si quieres casino. Con eso armamos la jugada.', mode: 'COACH' };
+  }
+
+  async claudeReply(history) {
+    let card = null;
+    const intensity = this.props.intensity ?? 'normal';
+    const tools = [
+      { name: 'buscar_partidos', description: 'Partidos en vivo y próximos en Big Bola, con hora o marcador, forma y un dato clave.',
+        input_schema: { type: 'object', properties: { equipo: { type: 'string' } } },
+        run: async ({ equipo }) => { const p = equipo ? findP(norm(equipo)) : null; const list = p ? [p] : P; if (list[0]) card = this.matchCard(list[0]); return JSON.stringify(list); } },
+      { name: 'pronostico_partido', description: 'Probabilidades orientativas (local, empate, visita) para un partido.',
+        input_schema: { type: 'object', properties: { equipo: { type: 'string' } }, required: ['equipo'] },
+        run: async ({ equipo }) => { const p = findP(norm(equipo)); if (!p) return 'Sin datos para ese equipo.'; card = this.forecastCard(p); return JSON.stringify({ partido: p.local + ' vs ' + p.visita, probabilidades: p.prob }); } },
+      { name: 'juegos_casino', description: 'Catálogo de juegos de casino con RTP y volatilidad. estilo: tranquilo o adrenalina.',
+        input_schema: { type: 'object', properties: { estilo: { type: 'string' } } },
+        run: async ({ estilo }) => { const l = CASINO.filter(g => !estilo || g.estilo === norm(estilo)); const list = l.length ? l : CASINO; card = this.gamesCard(list); return JSON.stringify(list); } },
+      { name: 'info_sitio', description: 'Secciones del sitio Big Bola (cuenta, depósitos, promociones, juego responsable, ayuda).',
+        input_schema: { type: 'object', properties: { tema: { type: 'string' } } },
+        run: async ({ tema }) => { const t = norm(tema); const hit = SITIO.filter(s => s.tags.split(' ').some(k => t.includes(k))); const list = hit.length ? hit : SITIO; card = this.linksCard(list); return JSON.stringify(list); } },
+      { name: 'jugadores_clave', description: 'Jugadores clave de un partido con estadísticas y la opinión de BETO sobre cada uno.',
+        input_schema: { type: 'object', properties: { equipo: { type: 'string' } }, required: ['equipo'] },
+        run: async ({ equipo }) => { const p = findP(norm(equipo)); if (!p) return 'Sin datos para ese equipo.'; card = this.playersCard(p); return JSON.stringify(JUG[p.id] || []); } },
+      { name: 'estadisticas_partido', description: 'Estadísticas comparadas de un partido y posibilidades (mercados) con probabilidad orientativa.',
+        input_schema: { type: 'object', properties: { equipo: { type: 'string' } }, required: ['equipo'] },
+        run: async ({ equipo }) => { const p = findP(norm(equipo)); if (!p || !STATS[p.id]) return 'Sin datos para ese equipo.'; card = this.statsCard(p); return JSON.stringify(STATS[p.id]); } },
+      { name: 'sugerir_pausa', description: 'Muestra al usuario opciones de pausa de 10 minutos y de poner un límite. Úsala ante rachas de pérdida o intención de recuperar.',
+        input_schema: { type: 'object', properties: {} },
+        run: async () => { card = this.pauseCard(); return 'Tarjeta de pausa mostrada.'; } }
+    ];
+    const system = 'Eres BETO, el coach de entretenimiento de Big Bola (bigbola.mx), México. Hablas como entrenador: fuerte, directo y chistoso, en español mexicano coloquial (campeón, órale, banca, cancha). Puedes regañar y puedes motivar. Intensidad: ' + intensity + '.\nReglas:\n- Empieza SIEMPRE con una etiqueta: [COACH], [REGANO], [IMPULSO] o [CHISTE].\n- Máximo 3 frases cortas. Sin listas ni markdown.\n- Usa un emoji de vez en cuando (⚽ 🔥 💪 😤 😂 📊 🏆 👀), máximo uno por mensaje y no en todos.\n- Da tu opinión de jugadores y estadísticas con las herramientas jugadores_clave y estadisticas_partido.\n- Usa las herramientas para cualquier dato de partidos, pronósticos, casino o el sitio. Nunca inventes datos; si no hay, dilo.\n- Los pronósticos son orientativos; nunca garantices resultados.\n- Si el usuario quiere recuperar pérdidas, doblar o juega enojado: [REGANO] y usa sugerir_pausa.\n- Regaña la decisión, nunca a la persona. Solo mayores de 18.\n- La tarjeta con datos aparece sola debajo de tu mensaje; no repitas todos los números.';
+    const out = await window.claude.complete({ system, messages: history, tools, max_tokens: 400 });
+    const m = String(out).match(/^\s*\[(COACH|REGA[NÑ]O|IMPULSO|CHISTE)\]\s*/i);
+    const mode = m ? norm(m[1]).toUpperCase().replace('Ñ', 'N') : 'COACH';
+    return { text: String(out).replace(/^\s*\[[^\]]+\]\s*/, '').trim(), mode: MODES[mode] ? mode : 'COACH', card };
+  }
+
+  buildHistory(msgs) {
+    const h = [];
+    msgs.forEach(m => {
+      const role = m.isUser ? 'user' : 'assistant';
+      const content = m.isUser ? m.text : '[' + m.modeKey + '] ' + m.text;
+      if (h.length && h[h.length - 1].role === role) h[h.length - 1].content += '\n' + content;
+      else h.push({ role, content });
+    });
+    let out = h.slice(-12);
+    while (out.length && out[0].role !== 'user') out = out.slice(1);
+    return out;
+  }
+
+  async ask(text, { chip = null, forceScript = false } = {}) {
+    const clean = (text || '').trim();
+    if (!clean || this.state.typing) return;
+    this.ensureAudio();
+    this.lastAct = Date.now(); this.nags = 0;
+    const userMsg = this.mk('user', clean);
+    const msgs = [...this.state.messages, userMsg];
+    this.setState({ messages: msgs, input: '', typing: true, open: true, last: chip, chipOffset: this.state.chipOffset + 2 });
+    let r;
+    const live = (this.props.liveAI ?? true) && !forceScript && window.claude && window.claude.complete;
+    if (live) {
+      try { r = await this.claudeReply(this.buildHistory(msgs)); } catch (e) { r = null; }
+    }
+    if (!r || !r.text) {
+      await new Promise(res => setTimeout(res, 650));
+      r = this.scripted(chip ? CHIP_Q[chip] : clean);
+    }
+    this.setState(s => ({ typing: false, messages: [...s.messages, this.mk('beto', r.text, r.mode, r.card)] }));
+    this.reactTo(r.mode, !!r.card);
+  }
+
+  componentDidUpdate() {
+    this.syncAnim();
+    const el = this.scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const lastBeto = [...s.messages].reverse().find(m => m.isBeto);
+    const mode = MODES[lastBeto ? lastBeto.modeKey : 'COACH'] || MODES.COACH;
+    const pool = CHIPS.filter(c => c !== s.last);
+    const chips = Array.from({ length: 4 }, (_, i) => pool[(s.chipOffset + i) % pool.length])
+      .map(c => ({ label: c, go: () => this.ask(c, { chip: c, forceScript: true }), hover: () => { if (!this.state.typing && this.state.pose !== 'lado') this.point(1400); } }));
+    const typingDots = React.createElement('div', { style: { display: 'flex', gap: 4, padding: '12px 14px', background: '#FFFFFF', border: '1px solid #E1E8F4', borderRadius: '4px 16px 16px 16px' } },
+      [0, 1, 2].map(i => React.createElement('span', { key: i, style: { width: 7, height: 7, borderRadius: '50%', background: '#0B4FF5', animation: 'betoDot 1s ' + (i * 0.15) + 's infinite ease-in-out' } })));
+    const h = React.createElement;
+    const figureImg = POSES[s.pose || 'saludo'];
+    const ANIM = { COACH: 'betoCoach .8s ease-out', REGANO: 'betoRegano .75s ease-out', IMPULSO: 'betoImpulso .8s ease-out', CHISTE: 'betoChiste .9s ease-in-out', GLANCE: 'betoGlance 1.6s ease-in-out', JAB: 'betoJab .7s ease-out', WHISTLE: 'betoWhistle .7s linear' };
+    const rx = s.react || { id: 0, mode: null };
+    const eye = EYES[s.pose || 'saludo'];
+    const lid = (e) => h('div', { style: { position: 'absolute', left: e.l, top: e.t, width: e.w, height: e.h, borderRadius: '50% 50% 45% 45%', background: 'linear-gradient(#C9733F,#E58D57 70%,#B9653A)', borderBottom: '1px solid rgba(70,30,10,.55)', transformOrigin: '50% 0', animation: 'betoBlink 3s infinite', pointerEvents: 'none' } });
+    const prrt = s.whistling ? h('div', { key: 'w' + s.whistleId, style: { position: 'absolute', left: '26%', top: '6%', zIndex: 3, pointerEvents: 'none' } },
+      h('div', { style: { position: 'absolute', left: 40, top: 26, width: 70, height: 70, borderRadius: '50%', border: '3px solid rgba(255,255,255,.8)', animation: 'betoWave .8s ease-out forwards' } }),
+      h('div', { style: { position: 'relative', padding: '6px 12px', borderRadius: 12, background: '#FFB020', color: '#241600', fontWeight: 900, fontSize: 18, letterSpacing: '.02em', boxShadow: '0 6px 16px rgba(0,0,0,.3)', animation: 'betoPrrt 1.1s ease-out forwards', whiteSpace: 'nowrap' } }, '¡PRRRT!')) : null;
+    const mkFig = (wrap, onClick, title, refKey) => h('div', { style: { ...wrap, transformOrigin: '50% 100%', animation: 'betoIdle 4.2s ease-in-out infinite' } },
+      h('div', { ref: refKey, 'data-anim': s.typing ? 'betoTalk .7s ease-in-out infinite' : (ANIM[rx.mode] || 'none'), 'data-rid': rx.id, onClick, title, style: { position: 'relative', cursor: 'pointer', transformOrigin: '50% 90%' } },
+        Object.keys(POSES).map((p, i) => h('img', { key: p, src: POSES[p], alt: i === 0 ? 'BETO' : '', draggable: false, style: { position: i === 0 ? 'relative' : 'absolute', left: 0, top: 0, width: '100%', display: 'block', userSelect: 'none', opacity: p === (s.pose || 'saludo') ? 1 : 0, transition: 'opacity .3s ease', filter: 'drop-shadow(0 10px 18px rgba(3,14,50,.45))' } })),
+        lid(eye[0]), lid(eye[1])),
+      prrt);
+    const figure = mkFig({ position: 'absolute', right: 44, bottom: -89, width: 466 }, () => this.pokeBeto(), 'Pícale a BETO', this.figRefA);
+    const launcherFigure = mkFig({ position: 'absolute', left: -124, top: 0, width: 360 }, () => this.setState({ open: true }), 'Habla con BETO', this.figRefB);
+    return {
+      figure, launcherFigure,
+      nudge: ['¡Oye, tú! El Tigres–Monterrey va 1-1 al 63\'. ¿Lo leemos juntos?', '¡Silbatazo! Ya va a empezar el Clásico.', '¡Así se juega! Aquí estoy cuando me necesites.', '¿Y esa cara? Ven, te armo la jugada.'][(s.cycle || 0) % 4],
+      open: s.open, closed: !s.open, typing: s.typing, typingDots,
+      messages: s.messages, chips, input: s.input, scrollRef: this.scrollRef,
+      headerImg: lastBeto && lastBeto.modeKey === 'REGANO' ? IMG_B : IMG_A,
+      headerModeLabel: mode.label, headerModeBg: mode.bg, headerModeFg: mode.fg,
+      close: () => this.setState({ open: false }),
+      openChat: () => this.setState({ open: true }),
+      onInput: e => this.setState({ input: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') this.ask(this.state.input); },
+      onSend: () => this.ask(this.state.input),
+      siteMatches: P.map(p => ({ liga: p.liga, local: p.local, visita: p.visita, centro: p.marcador || p.hora, isLive: !!p.marcador,
+        ask: () => this.ask('La opinión de BETO: ' + p.local + ' vs ' + p.visita, { forceScript: true }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>
