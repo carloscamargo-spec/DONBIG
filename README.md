@@ -21,11 +21,28 @@ npm run build        # dist/
 | Sonido del silbato | `?sonido=0` | `VITE_BETO_SOUND` | encendido |
 | Endpoint de IA | — | `VITE_BETO_ENDPOINT` | `/api/beto` |
 
-Servidor (Netlify → Environment variables): `ANTHROPIC_API_KEY` (obligatoria para IA), `BETO_MODEL` (default `claude-sonnet-5-5`).
+Servidor (Netlify → Environment variables):
+
+| Variable | Para qué | Default |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | IA de BETO (obligatoria para respuestas libres) | — |
+| `API_FOOTBALL_KEY` | Partidos reales de Liga MX (api-sports.io). Sin ella, datos de ejemplo | — |
+| `BETO_MODEL` | Modelo de Claude | `claude-sonnet-5-5` |
+| `BETO_LEAGUE_ID` | Liga de API-Football | `262` (Liga MX) |
+| `BETO_SEASON` | Forzar temporada (si el plan no da la actual) | la actual |
+| `BETO_LIVE_TTL_MIN` | Minutos de caché con partidos en vivo | `5` |
+
+`/api/partidos` devuelve el Dataset que usa el sitio. Si `source` es `demo`, el campo `notice` explica por qué (falta la clave, plan sin acceso a la temporada, cuota agotada…). La insignia del sitio dice **DATOS REALES · LIGA MX** o **DATOS DE EJEMPLO**.
+
+### Cuota de API-Football (plan gratis ≈ 100 consultas/día)
+
+Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 min si hay uno en vivo), pronósticos 6 h, goleadores 12 h. Una actualización completa cuesta ~7 consultas; si algo falla, se sirve lo último guardado y no se reintenta en 10 min.
 
 ## Cómo está armado
 
-- `src/beto/data.ts` — partidos, casino, sitio, jugadores, estadísticas y frases. **Datos de ejemplo**: se reemplazan por APIs reales antes de salir al público.
+- `src/beto/data.ts` — tipos, `Dataset`, datos de ejemplo (`DEMO`), casino, sitio y frases.
+- `src/server/apiFootball.ts` — conector de API-Football: partidos de Liga MX, pronóstico, forma, comparativa y goleadores, con caché.
+- `netlify/functions/partidos.ts` — `GET /api/partidos`.
 - `src/beto/cards.ts` — tarjetas del chat (partido, pronóstico, juegos, pausa, jugadores, estadísticas, secciones). Las usan el cliente y el servidor.
 - `src/beto/scripted.ts` — respuestas armadas (botones rápidos, "La opinión de BETO" y respaldo si la IA falla).
 - `src/beto/useBeto.ts` — motor del chat: poses, reacciones por modo, silbatazo, regaños por inactividad (25 s / 30 s, hasta 3), gestos cada 6 s minimizado y cada 10 s abierto.
@@ -35,6 +52,6 @@ Servidor (Netlify → Environment variables): `ANTHROPIC_API_KEY` (obligatoria p
 
 ## Pendiente antes de producción
 
-- Conectar APIs reales de partidos, momios, casino, sitio y usuario (hoy todo es de ejemplo).
+- Partidos de Liga MX ya son reales (API-Football). Faltan momios, casino, sitio y usuario (de ejemplo). Para producción, usar el proveedor con licencia de Big Bola.
 - Limitar tasa por usuario en `/api/beto` y verificar mayoría de edad / sesión.
 - `project/` conserva el paquete original de Claude Design como referencia.

@@ -1,5 +1,6 @@
-// Datos de ejemplo. Todo esto se reemplaza por las APIs reales (partidos, momios,
-// casino, sitio) antes de salir al público.
+// Datos de BETO. Los partidos, jugadores y estadísticas llegan de API-Football
+// (ver src/server/apiFootball.ts) como un Dataset; si no hay conexión se usa DEMO.
+// Casino, secciones del sitio y frases siguen siendo de ejemplo.
 
 export type ModeKey = 'COACH' | 'REGANO' | 'IMPULSO' | 'CHISTE';
 
@@ -13,8 +14,12 @@ export interface Match {
   formaLocal: string;
   formaVisita: string;
   /** Local, empate, visita. Un 0 en empate significa que el deporte no lo permite. */
-  prob: [number, number, number];
+  prob?: [number, number, number];
   dato: string;
+  /** Palabras con las que el usuario puede referirse a los equipos (normalizadas). */
+  keys?: string[];
+  /** Partido terminado (no cuenta como destacado para análisis). */
+  finished?: boolean;
 }
 
 export interface CasinoGame {
@@ -42,6 +47,17 @@ export interface Player {
 export interface MatchStats {
   rows: [string, number, number][];
   pos: [string, string][];
+}
+
+export interface Dataset {
+  /** 'api-football' = datos reales; 'demo' = datos de ejemplo. */
+  source: 'api-football' | 'demo';
+  updatedAt: string | null;
+  matches: Match[];
+  players: Record<string, Player[]>;
+  stats: Record<string, MatchStats>;
+  /** Por qué se están usando datos de ejemplo, si aplica. */
+  notice?: string;
 }
 
 export const MATCHES: Match[] = [
@@ -108,7 +124,7 @@ export const STATS: Record<string, MatchStats> = {
 export const NAGS: [string, ModeKey][] = [
   ['¡Ey! ¿Te dormiste en la banca? 😤 Aquí se viene a jugar, no a calentar la silla. ¿Qué analizamos?', 'REGANO'],
   ['Sigo aquí parado como poste de portería 🥅. Dame un equipo y armamos la jugada, campeón.', 'CHISTE'],
-  ['Última llamada 📣. Si no me dices nada, me voy a ver el Tigres–Monterrey solo.', 'REGANO'],
+  ['Última llamada 📣. Si no me dices nada, me voy a ver el {partido} solo.', 'REGANO'],
 ];
 
 export const POKES: [string, ModeKey][] = [
@@ -118,8 +134,8 @@ export const POKES: [string, ModeKey][] = [
 ];
 
 export const NUDGES = [
-  "¡Oye, tú! El Tigres–Monterrey va 1-1 al 63'. ¿Lo leemos juntos?",
-  '¡Silbatazo! Ya va a empezar el Clásico.',
+  '{nudge}',
+  '¡Silbatazo! Ya viene la jornada. ¿La leemos juntos?',
   '¡Así se juega! Aquí estoy cuando me necesites.',
   '¿Y esa cara? Ven, te armo la jugada.',
 ];
@@ -127,10 +143,10 @@ export const NUDGES = [
 export const CHIPS = ['Analizar el partido', 'Jugadores clave', 'Estadísticas y posibilidades', 'Ver un pronóstico', '¿Qué hay en vivo?', 'Recomiéndame un juego', 'Voy perdiendo, ¿le subo?', 'Cuéntame un chiste', 'Ayuda con el sitio'];
 
 export const CHIP_Q: Record<string, string> = {
-  'Analizar el partido': 'analisis america chivas',
-  'Ver un pronóstico': 'pronostico america chivas',
-  'Jugadores clave': 'jugadores america chivas',
-  'Estadísticas y posibilidades': 'estadisticas america chivas',
+  'Analizar el partido': 'analisis partido',
+  'Ver un pronóstico': 'pronostico',
+  'Jugadores clave': 'jugadores',
+  'Estadísticas y posibilidades': 'estadisticas',
   '¿Qué hay en vivo?': 'en vivo',
   'Recomiéndame un juego': 'casino juego',
   'Voy perdiendo, ¿le subo?': 'perdiendo le subo',
@@ -141,7 +157,20 @@ export const CHIP_Q: Record<string, string> = {
 export const norm = (s: string | undefined | null) =>
   (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-export const findMatch = (t: string) =>
-  MATCHES.find(p => t.includes(norm(p.local)) || t.includes(norm(p.visita)));
+export const DEMO: Dataset = { source: 'demo', updatedAt: null, matches: MATCHES, players: PLAYERS, stats: STATS };
+
+const matchKeys = (p: Match) => p.keys ?? [norm(p.local), norm(p.visita)];
+
+/** Busca el partido de un equipo mencionado en el texto (ya normalizado). */
+export const findMatch = (t: string, matches: Match[] = MATCHES) =>
+  matches.find(p => matchKeys(p).some(k => k && t.includes(k)));
+
+/** Partido a destacar cuando el usuario no menciona equipo: en vivo, luego el próximo. */
+export const featuredMatch = (matches: Match[]) =>
+  matches.find(p => p.marcador) ?? matches.find(p => !p.finished) ?? matches[0];
+
+export const liveMatch = (matches: Match[]) => matches.find(p => p.marcador);
+
+export const matchName = (p: Match) => p.local + '–' + p.visita;
 
 export const findSections = (t: string) => SITIO.filter(s => s.tags.split(' ').some(k => t.includes(k)));

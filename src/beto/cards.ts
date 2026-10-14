@@ -1,6 +1,6 @@
 // Tarjetas que acompañan los mensajes de BETO. Son datos planos (serializables)
 // para que el servidor de IA y las respuestas armadas produzcan lo mismo.
-import { CASINO, PLAYERS, STATS, type CasinoGame, type Match, type SiteSection } from './data';
+import { CASINO, DEMO, type CasinoGame, type Dataset, type Match, type SiteSection } from './data';
 
 export type Card =
   | { type: 'match'; liga: string; local: string; visita: string; centro: string; isLive: boolean; formaLocal: string; formaVisita: string; dato: string }
@@ -16,7 +16,8 @@ export const matchCard = (p: Match): Card => ({
   isLive: !!p.marcador, formaLocal: p.formaLocal, formaVisita: p.formaVisita, dato: p.dato,
 });
 
-export const forecastCard = (p: Match): Card => {
+export const forecastCard = (p: Match): Card | null => {
+  if (!p.prob) return null;
   const labels = [p.local, 'Empate', p.visita];
   return {
     type: 'forecast', titulo: p.local + ' vs ' + p.visita,
@@ -30,12 +31,13 @@ export const gamesCard = (list: CasinoGame[] = CASINO): Card => ({
 
 export const pauseCard = (): Card => ({ type: 'pause' });
 
-export const playersCard = (p: Match): Card => ({
-  type: 'players', titulo: p.local + ' vs ' + p.visita, list: (PLAYERS[p.id] || []).map(j => ({ ...j })),
-});
+export const playersCard = (p: Match, ds: Dataset = DEMO): Card | null => {
+  const list = ds.players[p.id] || [];
+  return list.length ? { type: 'players', titulo: p.local + ' vs ' + p.visita, list: list.map(j => ({ ...j })) } : null;
+};
 
-export const statsCard = (p: Match): Card | null => {
-  const st = STATS[p.id];
+export const statsCard = (p: Match, ds: Dataset = DEMO): Card | null => {
+  const st = ds.stats[p.id];
   if (!st) return null;
   return {
     type: 'stats', local: p.local, visita: p.visita,

@@ -10,6 +10,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -1,7 +1,7 @@
 // Motor del chat de BETO: mensajes, poses, reacciones, silbato, regaños por
 // inactividad y ciclo de gestos con el chat minimizado.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CHIPS, CHIP_Q, MODES, NAGS, NUDGES, POKES, type ModeKey } from './data';
+import { CHIPS, CHIP_Q, MODES, NAGS, NUDGES, POKES, featuredMatch, liveMatch, matchName, type Dataset, type ModeKey } from './data';
 import type { Card } from './cards';
 import { scripted, type Reply } from './scripted';
 import type { Pose, ReactAnim } from './poses';
@@ -17,6 +17,8 @@ export interface BetoSettings {
   sound: boolean;
   /** Endpoint del cerebro con IA. */
   endpoint: string;
+  /** Endpoint de partidos (API-Football). */
+  dataEndpoint: string;
 }
 
 export interface Msg {
@@ -47,7 +49,7 @@ const mk = (from: Msg['from'], text: string, mode?: ModeKey, card?: Card | null)
 
 const hasCard = (m: Msg) => !!m.card;
 
-export function useBeto(settings: BetoSettings) {
+export function useBeto(settings: BetoSettings, dataset: Dataset) {
   const [state, setState] = useState<State>(() => ({
     open: true, input: '', typing: false, chipOffset: 0, last: null,
     messages: [mk('beto', '¿Qué onda, campeón? 👋 Soy BETO, tu coach. Aquí no se viene a adivinar, se viene a leer el partido. ¿A qué equipo le vas?', 'COACH')],
@@ -61,6 +63,8 @@ export function useBeto(settings: BetoSettings) {
   sRef.current = state;
   const cfg = useRef(settings);
   cfg.current = settings;
+  const dsRef = useRef(dataset);
+  dsRef.current = dataset;
 
   const t = useRef({ pose: 0, whistle: 0, lastAct: Date.now(), nags: 0, pokes: 0 });
 
@@ -123,7 +127,7 @@ export function useBeto(settings: BetoSettings) {
     }
     if (!r) {
       await new Promise(res => setTimeout(res, 650));
-      r = scripted(opts.chip ? CHIP_Q[opts.chip] : clean);
+      r = scripted(opts.chip ? CHIP_Q[opts.chip] : clean, dsRef.current);
     }
     const reply = r;
     set(st => ({ typing: false, messages: [...st.messages, mk('beto', reply.text, reply.mode, reply.card)] }));
@@ -158,7 +162,9 @@ export function useBeto(settings: BetoSettings) {
       const s = sRef.current;
       if (!s.open || s.typing || t.current.nags >= NAGS.length) return;
       if (Date.now() - t.current.lastAct < (t.current.nags ? 30000 : 25000)) return;
-      const [text, mode] = NAGS[t.current.nags++];
+      const [tpl, mode] = NAGS[t.current.nags++];
+      const fm = featuredMatch(dsRef.current.matches);
+      const text = tpl.replace('{partido}', fm ? matchName(fm) : 'partido');
       t.current.lastAct = Date.now();
       if (mode === 'REGANO') whistle();
       window.setTimeout(() => push(mk('beto', text, mode)), mode === 'REGANO' ? 500 : 0);
@@ -189,7 +195,7 @@ export function useBeto(settings: BetoSettings) {
     state,
     chips,
     headerMode: MODES[lastBeto?.mode ?? 'COACH'],
-    nudge: NUDGES[state.cycle % NUDGES.length],
+    nudge: nudgeText(NUDGES[state.cycle % NUDGES.length], dataset),
     ask,
     askChip: (c: string) => ask(c, { chip: c, forceScript: true }),
     askScripted: (text: string) => ask(text, { forceScript: true }),
@@ -205,3 +211,11 @@ export function useBeto(settings: BetoSettings) {
 }
 
 export type BetoApi = ReturnType<typeof useBeto>;
+
+function nudgeText(tpl: string, ds: Dataset) {
+  if (tpl !== '{nudge}') return tpl;
+  const live = liveMatch(ds.matches);
+  if (live) return '¡Oye, tú! El ' + matchName(live) + ' va ' + live.marcador + '. ¿Lo leemos juntos?';
+  const next = featuredMatch(ds.matches);
+  return next ? '¡Oye, tú! Ya viene el ' + matchName(next) + (next.hora ? ' (' + next.hora + ')' : '') + '. ¿Lo leemos?' : '¿Y esa cara? Ven, te armo la jugada.';
+}

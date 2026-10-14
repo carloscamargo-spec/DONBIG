@@ -3,8 +3,9 @@
 // devuelve { text, mode, card }. Si algo falla, el cliente usa respuestas armadas.
 import Anthropic from '@anthropic-ai/sdk';
 import type { Config } from '@netlify/functions';
-import { CASINO, PLAYERS, SITIO, STATS, MATCHES, findMatch, findSections, isMode, norm, type ModeKey } from '../../src/beto/data';
+import { CASINO, SITIO, findMatch, findSections, isMode, norm, type Dataset, type ModeKey } from '../../src/beto/data';
 import { forecastCard, gamesCard, linksCard, matchCard, pauseCard, playersCard, statsCard, type Card } from '../../src/beto/cards';
+import { getDataset } from '../../src/server/apiFootball';
 
 const MODEL = process.env.BETO_MODEL || 'claude-sonnet-5-5';
 const MAX_TOOL_ROUNDS = 4;
@@ -15,7 +16,7 @@ const client = new Anthropic();
 const equipo = { type: 'object' as const, properties: { equipo: { type: 'string' } }, required: ['equipo'] };
 
 const TOOLS: Anthropic.Beta.BetaTool[] = [
-  { name: 'buscar_partidos', description: 'Partidos en vivo y próximos en Big Bola, con hora o marcador, forma y un dato clave.', input_schema: { type: 'object', properties: { equipo: { type: 'string' } } } },
+  { name: 'buscar_partidos', description: 'Partidos de Liga MX en vivo, próximos y recién terminados, con hora o marcador, forma y un dato clave. Sin equipo devuelve todos.', input_schema: { type: 'object', properties: { equipo: { type: 'string' } } } },
   { name: 'pronostico_partido', description: 'Probabilidades orientativas (local, empate, visita) para un partido.', input_schema: equipo },
   { name: 'juegos_casino', description: 'Catálogo de juegos de casino con RTP y volatilidad. estilo: tranquilo o adrenalina.', input_schema: { type: 'object', properties: { estilo: { type: 'string' } } } },
   { name: 'info_sitio', description: 'Secciones del sitio Big Bola (cuenta, depósitos, promociones, juego responsable, ayuda).', input_schema: { type: 'object', properties: { tema: { type: 'string' } } } },
@@ -25,18 +26,23 @@ const TOOLS: Anthropic.Beta.BetaTool[] = [
 ];
 
 /** Ejecuta una herramienta. Devuelve el texto para Claude y, si aplica, la tarjeta para el chat. */
-function runTool(name: string, input: Record<string, unknown>): { result: string; card?: Card | null } {
+function runTool(name: string, input: Record<string, unknown>, ds: Dataset): { result: string; card?: Card | null } {
   const str = (k: string) => (typeof input[k] === 'string' ? (input[k] as string) : '');
+  const find = (k: string) => findMatch(norm(str(k)), ds.matches);
+  const strip = ({ keys: _k, ...m }: Dataset['matches'][number]) => m;
   switch (name) {
     case 'buscar_partidos': {
-      const p = str('equipo') ? findMatch(norm(str('equipo'))) : undefined;
-      const list = p ? [p] : MATCHES;
-      return { result: JSON.stringify(list), card: matchCard(list[0]) };
+      const p = str('equipo') ? find('equipo') : undefined;
+      if (str('equipo') && !p) return { result: 'Ese equipo no aparece en los partidos que tengo. Partidos disponibles: ' + JSON.stringify(ds.matches.map(strip)) };
+      const list = p ? [p] : ds.matches;
+      if (!list.length) return { result: 'No hay partidos disponibles.' };
+      return { result: JSON.stringify(list.map(strip)), card: matchCard(list[0]) };
     }
     case 'pronostico_partido': {
-      const p = findMatch(norm(str('equipo')));
+      const p = find('equipo');
       if (!p) return { result: 'Sin datos para ese equipo.' };
-      return { result: JSON.stringify({ partido: p.local + ' vs ' + p.visita, probabilidades: p.prob }), card: forecastCard(p) };
+      if (!p.prob) return { result: 'No hay pronóstico disponible para ' + p.local + ' vs ' + p.visita + '.', card: matchCard(p) };
+      return { result: JSON.stringify({ partido: p.local + ' vs ' + p.visita, probabilidades: { local: p.prob[0], empate: p.prob[1], visita: p.prob[2] } }), card: forecastCard(p) };
     }
     case 'juegos_casino': {
       const estilo = norm(str('estilo'));
@@ -50,14 +56,16 @@ function runTool(name: string, input: Record<string, unknown>): { result: string
       return { result: JSON.stringify(list), card: linksCard(list) };
     }
     case 'jugadores_clave': {
-      const p = findMatch(norm(str('equipo')));
+      const p = find('equipo');
       if (!p) return { result: 'Sin datos para ese equipo.' };
-      return { result: JSON.stringify(PLAYERS[p.id] || []), card: playersCard(p) };
+      const list = ds.players[p.id] || [];
+      if (!list.length) return { result: 'No hay jugadores destacados para ' + p.local + ' vs ' + p.visita + '.' };
+      return { result: JSON.stringify(list), card: playersCard(p, ds) };
     }
     case 'estadisticas_partido': {
-      const p = findMatch(norm(str('equipo')));
-      if (!p || !STATS[p.id]) return { result: 'Sin datos para ese equipo.' };
-      return { result: JSON.stringify(STATS[p.id]), card: statsCard(p) };
+      const p = find('equipo');
+      if (!p || !ds.stats[p.id]) return { result: 'Sin estadísticas para ese equipo.' };
+      return { result: JSON.stringify(ds.stats[p.id]), card: statsCard(p, ds) };
     }
     case 'sugerir_pausa':
       return { result: 'Tarjeta de pausa mostrada.', card: pauseCard() };
@@ -65,6 +73,12 @@ function runTool(name: string, input: Record<string, unknown>): { result: string
       return { result: 'Herramienta desconocida.' };
   }
 }
+
+const TODAY = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', dateStyle: 'full', timeStyle: 'short' });
+
+const dataNote = (ds: Dataset) => ds.source === 'api-football'
+  ? '\nDatos: partidos reales de Liga MX vía API-Football (actualizados ' + (ds.updatedAt ? TODAY.format(new Date(ds.updatedAt)) : 'recientemente') + '). Solo cubren Liga MX; si preguntan por otra liga o deporte, di que por ahora solo traes Liga MX.'
+  : '\nDatos: son DE EJEMPLO, no reales. Si el usuario pregunta si son reales, díselo con honestidad.';
 
 const systemPrompt = (intensity: string) =>
   'Eres BETO, el coach de entretenimiento de Big Bola (bigbola.mx), México. Hablas como entrenador: fuerte, directo y chistoso, en español mexicano coloquial (campeón, órale, banca, cancha). Puedes regañar y puedes motivar. Intensidad: ' + intensity + '.\n' +
@@ -108,6 +122,7 @@ export default async (req: Request) => {
   const intensity = INTENSITIES.includes(body.intensity as never) ? (body.intensity as string) : 'normal';
 
   let card: Card | null = null;
+  const ds = await getDataset();
   try {
     for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
       const response = await client.beta.messages.create({
@@ -116,7 +131,7 @@ export default async (req: Request) => {
         betas: ['server-side-fallback-2026-07-01'],
         fallbacks: 'default',
         output_config: { effort: 'low' },
-        system: systemPrompt(intensity),
+        system: systemPrompt(intensity) + '\nHoy es ' + TODAY.format(new Date()) + ' (hora del centro de México).' + dataNote(ds),
         tools: TOOLS,
         messages,
       });
@@ -128,7 +143,7 @@ export default async (req: Request) => {
         const results: Anthropic.Beta.BetaToolResultBlockParam[] = [];
         for (const block of response.content) {
           if (block.type !== 'tool_use') continue;
-          const r = runTool(block.name, (block.input ?? {}) as Record<string, unknown>);
+          const r = runTool(block.name, (block.input ?? {}) as Record<string, unknown>, ds);
           if (r.card) card = r.card;
           results.push({ type: 'tool_result', tool_use_id: block.id, content: r.result });
         }

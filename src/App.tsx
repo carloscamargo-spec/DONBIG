@@ -1,4 +1,5 @@
-import { MATCHES, MODES } from './beto/data';
+import { useEffect, useState } from 'react';
+import { DEMO, MODES, type Dataset } from './beto/data';
 import { AVATAR_BASE, AVATAR_POINT } from './beto/poses';
 import { useBeto, type BetoSettings } from './beto/useBeto';
 import { BetoChat } from './components/BetoChat';
@@ -41,8 +42,26 @@ const RULES = [
   'Chistes de cancha, sin ofender aficiones ni personas.',
 ];
 
+/** Carga partidos reales (API-Football vía /api/partidos); si falla, se queda con los de ejemplo. */
+function useDataset(url: string) {
+  const [ds, setDs] = useState<Dataset>(DEMO);
+  useEffect(() => {
+    let alive = true;
+    const load = () => fetch(url)
+      .then(r => (r.ok ? r.json() : null))
+      .then((d: Dataset | null) => { if (alive && d && Array.isArray(d.matches) && d.matches.length) setDs(d); })
+      .catch(() => {});
+    load();
+    const id = window.setInterval(load, 2 * 60_000);
+    return () => { alive = false; clearInterval(id); };
+  }, [url]);
+  return ds;
+}
+
 export function App({ settings }: { settings: BetoSettings }) {
-  const beto = useBeto(settings);
+  const dataset = useDataset(settings.dataEndpoint);
+  const beto = useBeto(settings, dataset);
+  const real = dataset.source === 'api-football';
 
   return (
     <div className="page">
@@ -57,7 +76,9 @@ export function App({ settings }: { settings: BetoSettings }) {
           <div className="site__nav">
             <div className="site__logo">BIG BOLA</div>
             <nav className="site__links"><span>Deportes</span><span>Partidos</span><span>Casino</span><span>Mi equipo</span></nav>
-            <div className="site__badge">DEMO CONCEPTUAL</div>
+            <div className={'site__badge' + (real ? ' site__badge--live' : '')} title={dataset.notice || (real ? 'Partidos reales de Liga MX vía API-Football' : 'Datos de ejemplo')}>
+              {real ? 'DATOS REALES · LIGA MX' : 'DATOS DE EJEMPLO'}
+            </div>
           </div>
 
           <div className="site__body">
@@ -76,7 +97,7 @@ export function App({ settings }: { settings: BetoSettings }) {
               <div className="featured">
                 <div className="featured__title">Partidos destacados</div>
                 <div className="featured__grid">
-                  {MATCHES.map(p => (
+                  {dataset.matches.map(p => (
                     <div key={p.id} className="match">
                       <div className="match__top">
                         <span className="match__liga">{p.liga}</span>

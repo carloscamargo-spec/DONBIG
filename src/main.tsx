@@ -15,6 +15,7 @@ const settings: BetoSettings = {
   intensity: (['suave', 'normal', 'rudo'].includes(tono) ? tono : 'normal') as Intensity,
   sound: flag(q.get('sonido') ?? import.meta.env.VITE_BETO_SOUND, true),
   endpoint: import.meta.env.VITE_BETO_ENDPOINT || '/api/beto',
+  dataEndpoint: import.meta.env.VITE_BETO_DATA_ENDPOINT || '/api/partidos',
 };
 
 createRoot(document.getElementById('root')!).render(
