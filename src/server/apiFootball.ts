@@ -29,13 +29,16 @@ const FINISHED = new Set(['FT', 'AET', 'PEN']);
 
 class ApiFootballError extends Error {}
 
+/** Clave de API-Sports. Acepta API_FOOTBALL_KEY o API_FOOTBALL (como quedó en Netlify). */
+const apiKey = () => (process.env.API_FOOTBALL_KEY || process.env.API_FOOTBALL || '').trim();
+
 // ---------- HTTP ----------
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Json = any;
 
 async function af(path: string, params: Record<string, string | number>): Promise<Json[]> {
-  const key = process.env.API_FOOTBALL_KEY;
+  const key = apiKey();
   if (!key) throw new ApiFootballError('Falta la variable API_FOOTBALL_KEY');
   const url = new URL(path, BASE);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
@@ -296,7 +299,7 @@ async function buildDataset(): Promise<Dataset> {
 
 /** Dataset para BETO: real si hay API-Football; si no, el de ejemplo con el motivo. */
 export async function getDataset(): Promise<Dataset> {
-  if (!process.env.API_FOOTBALL_KEY) return { ...DEMO, notice: 'Sin API_FOOTBALL_KEY: datos de ejemplo.' };
+  if (!apiKey()) return { ...DEMO, notice: 'Sin API_FOOTBALL_KEY: datos de ejemplo.' };
   try {
     const ds = await buildDataset();
     if (!ds.matches.length) return { ...DEMO, notice: 'API-Football no devolvió partidos de Liga MX en estas fechas.' };
