@@ -46,7 +46,7 @@ Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 mi
 ## Secciones de la página
 
 1. **Sitio + BETO** — maqueta de bigbola.mx con el chat de BETO.
-2. **BETO en WhatsApp** (simulación) — `src/components/WhatsAppSim.tsx`, guion y retos en `src/beto/coachWa.ts`. BETO despierta al usuario a las 6:30, le manda nota de voz, le pregunta por el partido de la semana y lo reta con encuestas (datos reales, reglas de casino, bono). Si falla o se duerme, le pone lagartijas; con 5 retos sube a "Especialista BETO". El texto libre va a la IA con `channel: "whatsapp"` (la IA puede asignar lagartijas con la línea `LAGARTIJAS: +N`).
+2. **BETO en WhatsApp** (simulación) — `src/components/WhatsAppSim.tsx`, guion y retos en `src/beto/coachWa.ts`. BETO despierta al usuario a las 6:30, le manda una nota de voz con audio real (`public/assets/beto-coach.mp3`; duración y onda en `VOICE` de `coachWa.ts`, con campo `transcript` para su texto), le pregunta por el partido de la semana y lo reta con encuestas (datos reales, reglas de casino, bono). Si falla o se duerme, le pone lagartijas; con 5 retos sube a "Especialista BETO". El texto libre va a la IA con `channel: "whatsapp"` (la IA puede asignar lagartijas con la línea `LAGARTIJAS: +N`).
 3. **BETO en X** (simulación) — `src/components/XFeed.tsx`, posts en `src/beto/xposts.ts`. Perfil, posts con onomatopeyas armados con los partidos reales, encuestas, likes, tendencias y botón para que la IA publique (`channel: "x"`, máx. 280 caracteres).
 4. Sistema gráfico · 5. Cerebro de BETO.
 

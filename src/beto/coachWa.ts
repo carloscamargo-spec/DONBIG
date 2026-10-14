@@ -104,7 +104,15 @@ export const NAGS = [
 ];
 
 export const WAKE_UP = '¡Buenos días, campeón! ☀️ Son las 6:30 y tú todavía con la almohada pegada 😴';
-export const VOICE_NOTE = '¡Arriba, arriba! Los campeones no se hacen en la cama. Hoy entrenamos la cabeza: datos, partidos y juegos. Cinco retos y te vuelves especialista. ¿Le entramos?';
+/** Nota de voz de BETO: audio real del coach (public/assets/beto-coach.mp3, 12 s). */
+export const VOICE = {
+  src: '/assets/beto-coach.mp3',
+  dur: 12.4,
+  /** Alturas de las barras, calculadas de la onda del audio. */
+  wave: [15, 13, 20, 12, 5, 6, 7, 16, 15, 15, 11, 5, 14, 14, 10, 6, 12, 9, 13, 11, 10, 5, 15, 14, 16, 13, 10, 6, 15, 6],
+  /** Lo que dice el audio (transcripción). Vacío mientras no se tenga el texto. */
+  transcript: '',
+};
 
 /** Formato de hora de WhatsApp en español de México. */
 export function waTime(minutes: number) {

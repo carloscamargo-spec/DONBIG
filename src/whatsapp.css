@@ -109,12 +109,14 @@
 /* Nota de voz */
 .wa-voice { min-width: min(270px, 100%); padding: 8px 10px 6px; }
 .wa-voice__main { display: flex; align-items: center; gap: 8px; }
-.wa-voice__play { width: 30px; height: 30px; flex: none; border: 0; border-radius: 50%; background: transparent; color: #54656F; font-size: 17px; cursor: pointer; }
-.wa-voice__wave { position: relative; flex: 1; height: 30px; display: flex; align-items: center; gap: 2px; overflow: hidden; }
-.wa-voice__wave span { flex: 1; min-width: 2px; border-radius: 2px; background: #AEBAC1; }
-.wa-voice__fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(0, 168, 132, .22); border-right: 2px solid var(--wa-teal); pointer-events: none; }
-.wa-voice__fill--on { animation: waVoice linear forwards; }
-@keyframes waVoice { from { width: 0; } to { width: 100%; } }
+.wa-voice__play { width: 32px; height: 32px; flex: none; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #54656F; cursor: pointer; }
+.wa-voice__play svg { width: 26px; height: 26px; }
+.wa-voice__wave { position: relative; flex: 1; height: 30px; display: flex; align-items: center; gap: 2px; cursor: pointer; }
+.wa-voice__wave span { flex: 1; min-width: 2px; border-radius: 2px; background: #AEBAC1; transition: background .15s; }
+.wa-voice__wave span.wa-voice__bar--played { background: var(--wa-teal); }
+.wa-voice__knob { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--wa-teal); transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 0 2px #FFFFFF; }
+.wa-voice__speed { width: 44px; height: 28px; flex: none; margin: 8px 0; border: 0; border-radius: 14px; background: #8696A0; color: #FFFFFF; font: 700 13px 'Segoe UI', Helvetica, Roboto, Arial, sans-serif; cursor: pointer; }
+.wa-voice__spacer { flex: 1; }
 .wa-voice__pic { position: relative; width: 44px; height: 44px; flex: none; border-radius: 50%; background-color: #000; background-size: 230%; background-position: 50% 30%; }
 .wa-voice__pic span { position: absolute; left: -4px; bottom: -2px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--wa-teal); font-size: 10px; }
 .wa-voice__foot { display: flex; align-items: center; gap: 8px; margin: 2px 0 0 38px; font-size: 11px; color: var(--wa-muted); }
