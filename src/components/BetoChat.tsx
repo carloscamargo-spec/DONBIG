@@ -4,6 +4,8 @@ import { AVATAR_BASE, AVATAR_POINT } from '../beto/poses';
 import type { BetoApi } from '../beto/useBeto';
 import { BetoFigure } from './BetoFigure';
 import { MessageCard } from './MessageCard';
+import { VoiceNote } from './VoiceNote';
+import { useVoice } from '../beto/useVoice';
 
 const avatarStyle = (src: string) => ({ backgroundImage: `url(${src})` });
 
@@ -17,7 +19,12 @@ export function BetoChat({ beto }: { beto: BetoApi }) {
     if (el) el.scrollTop = el.scrollHeight;
   }, [s.messages, s.typing, s.open]);
 
-  const figProps = { pose: s.pose, typing: s.typing, react: s.react, whistling: s.whistling, whistleId: s.whistleId };
+  const voice = useVoice();
+  // Mientras suena su nota de voz, BETO "habla" en el encabezado.
+  const talking = !!voice.playing;
+  const { touch } = beto;
+  useEffect(() => { touch(); }, [voice.playing, touch]);
+  const figProps = { pose: s.pose, typing: s.typing || talking, react: s.react, whistling: s.whistling, whistleId: s.whistleId };
 
   if (!s.open) {
     return (
@@ -52,7 +59,9 @@ export function BetoChat({ beto }: { beto: BetoApi }) {
               <div className="avatar avatar--30" style={avatarStyle(m.mode === 'REGANO' ? AVATAR_POINT : AVATAR_BASE)} />
               <div className="msg-beto__col">
                 {mode && <span className="mode-pill" style={{ background: mode.bg, color: mode.fg }}>{mode.label}</span>}
-                <div className="msg-beto__bubble">{m.text}</div>
+                {m.voice
+                  ? <div className="msg-beto__bubble msg-beto__voice"><VoiceNote clip={m.voice} voice={voice} skin="bv" caption="🎙 Bienvenida de BETO" /></div>
+                  : <div className="msg-beto__bubble">{m.text}</div>}
                 {m.card && <MessageCard card={m.card} onPlay={beto.playGame} onPause={beto.takePause} onLimit={beto.setLimit} />}
               </div>
             </div>

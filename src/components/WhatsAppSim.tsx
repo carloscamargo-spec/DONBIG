@@ -8,13 +8,15 @@ import { AVATAR_BASE } from '../beto/poses';
 import { playWhistle, unlockAudio } from '../beto/whistle';
 import { LEVEL_GOAL, NAGS, VOICE, WAKE_UP, buildQuizzes, matchOfWeek, waTime, type Quiz } from '../beto/coachWa';
 import { MessageCard } from './MessageCard';
+import { VoiceNote } from './VoiceNote';
+import { useVoice, type VoiceClip } from '../beto/useVoice';
 import '../whatsapp.css';
 
 type WaMsg =
   | { id: number; kind: 'date'; text: string }
   | { id: number; kind: 'notice'; text: string; tone: 'info' | 'push' | 'ok' }
   | { id: number; kind: 'text'; from: 'beto' | 'user'; text: string; time: string; card?: Card | null; buttons?: string[] }
-  | { id: number; kind: 'voice'; src: string; dur: number; wave: number[]; transcript: string; time: string }
+  | { id: number; kind: 'voice'; clip: VoiceClip; time: string }
   | { id: number; kind: 'poll'; quiz: Quiz; voted?: number; time: string }
   | { id: number; kind: 'badge'; time: string };
 
@@ -23,8 +25,6 @@ type NewMsg = DistOmit<WaMsg, 'id' | 'time'>;
 
 const START = 6 * 60 + 30; // 6:30 a.m.
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
-const SPEEDS = [1, 1.5, 2];
 
 /** *negritas*, _cursivas_ y saltos de línea como en WhatsApp. */
 function fmt(text: string): ReactNode {
@@ -45,11 +45,8 @@ export function WhatsAppSim({ dataset, settings }: { dataset: Dataset; settings:
   const [pushups, setPushups] = useState(0);
   const [progress, setProgress] = useState(0);
   const [input, setInput] = useState('');
-  const [playing, setPlaying] = useState<number | null>(null);
-  const [pos, setPos] = useState(0);
-  const [speed, setSpeed] = useState(1);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [transcripts, setTranscripts] = useState<Record<number, boolean>>({});
+  const voice = useVoice();
+  useEffect(() => { r.current.lastAct = Date.now(); }, [voice.playing]);
   const [clock, setClock] = useState(START);
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -155,7 +152,7 @@ export function WhatsAppSim({ dataset, settings }: { dataset: Dataset; settings:
     if (cfg.current.liveAI) {
       const history = msgsRef.current.flatMap(m =>
         m.kind === 'text' ? [{ role: m.from === 'user' ? 'user' as const : 'assistant' as const, content: m.text }]
-          : m.kind === 'voice' ? [{ role: 'assistant' as const, content: m.transcript ? '(nota de voz) ' + m.transcript : '(nota de voz de BETO para despertarlo y arrancar el entrenamiento)' }]
+          : m.kind === 'voice' ? [{ role: 'assistant' as const, content: m.clip.transcript ? '(nota de voz) ' + m.clip.transcript : '(nota de voz de BETO para despertarlo y arrancar el entrenamiento)' }]
             : m.kind === 'poll' ? [{ role: 'assistant' as const, content: 'Encuesta: ' + m.quiz.q + (m.voted !== undefined ? ` (contestó: ${m.quiz.options[m.voted]})` : '') }]
               : []).slice(-12);
       history.push({ role: 'user', content: text });
@@ -232,7 +229,7 @@ export function WhatsAppSim({ dataset, settings }: { dataset: Dataset; settings:
     add({ kind: 'date', text: 'HOY' }, false);
     add({ kind: 'notice', text: '🔒 Simulación de BETO en WhatsApp Business. Los mensajes y audios son de demostración.', tone: 'info' }, false);
     say(WAKE_UP);
-    enqueue(async () => { await typeFor(1200); add({ kind: 'voice', ...VOICE }); });
+    enqueue(async () => { await typeFor(1200); add({ kind: 'voice', clip: VOICE }); });
     const m = matchOfWeek(ds.current);
     if (m) say(`Esta semana juega *${m.local} vs ${m.visita}* (${m.marcador || m.hora}) 🔥 ¿Ya te sabes estos datos?`, { card: matchCard(m), buttons: ['Sí, me los sé 😎', 'Ni idea 🙈'] });
     else say('Hoy no hay partido en el radar, pero el cerebro también se entrena. ¿Arrancamos?', { buttons: ['Siguiente reto 💪'] });
@@ -257,64 +254,13 @@ export function WhatsAppSim({ dataset, settings }: { dataset: Dataset; settings:
       say(NAGS[i]);
       if (i === 1) addPushups(10);
     }, 3000);
-    return () => { st.alive = false; io.disconnect(); clearInterval(nag); audioRef.current?.pause(); };
+    return () => { st.alive = false; io.disconnect(); clearInterval(nag); };
   }, [start, say, enqueue, addPushups]);
 
   useEffect(() => {
     const el = bodyRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [msgs, typing]);
-
-  // ---------- Nota de voz (audio real) ----------
-
-  /** Un solo reproductor para las notas de voz; se crea al primer play. */
-  const audioFor = (m: Extract<WaMsg, { kind: 'voice' }>) => {
-    let a = audioRef.current;
-    if (!a || a.dataset.src !== m.src) {
-      a?.pause();
-      a = new Audio(m.src);
-      a.preload = 'auto';
-      a.dataset.src = m.src;
-      a.onended = () => { setPlaying(null); setPos(0); if (audioRef.current) audioRef.current.currentTime = 0; };
-      a.onerror = () => setPlaying(null);
-      audioRef.current = a;
-    }
-    return a;
-  };
-
-  const playVoice = (m: Extract<WaMsg, { kind: 'voice' }>) => {
-    const a = audioFor(m);
-    r.current.lastAct = Date.now();
-    if (playing === m.id) { a.pause(); setPlaying(null); return; }
-    a.playbackRate = speed;
-    setPlaying(m.id);
-    a.play().catch(() => setPlaying(null));
-  };
-
-  const seekVoice = (m: Extract<WaMsg, { kind: 'voice' }>, e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    const a = audioFor(m);
-    const total = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : m.dur;
-    a.currentTime = ratio * total;
-    setPos(ratio * total);
-    if (playing !== m.id) playVoice(m);
-  };
-
-  const nextSpeed = () => {
-    const sp = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
-    setSpeed(sp);
-    if (audioRef.current) audioRef.current.playbackRate = sp;
-  };
-
-  // Avance suave de la barra mientras suena.
-  useEffect(() => {
-    if (playing === null) return;
-    let raf = 0;
-    const tick = () => { const a = audioRef.current; if (a) setPos(a.currentTime); raf = requestAnimationFrame(tick); };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [playing]);
 
   // ---------- Vista ----------
 
@@ -359,34 +305,10 @@ export function WhatsAppSim({ dataset, settings }: { dataset: Dataset; settings:
               );
             }
             if (m.kind === 'voice') {
-              const on = playing === m.id;
-              const a = audioRef.current;
-              const active = on || (pos > 0 && a?.dataset.src === m.src);
-              const total = a && a.dataset.src === m.src && Number.isFinite(a.duration) && a.duration > 0 ? a.duration : m.dur;
-              const ratio = active ? Math.min(1, pos / total) : 0;
               return (
                 <div key={m.id} className="wa-row">
                   <div className="wa-msg wa-msg--in wa-voice">
-                    <div className="wa-voice__main">
-                      <button className="wa-voice__play" onClick={() => playVoice(m)} aria-label={on ? 'Pausar audio' : 'Reproducir audio'}>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">{on ? <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor" /> : <path d="M8 5.5v13l10.5-6.5z" fill="currentColor" />}</svg>
-                      </button>
-                      <div className="wa-voice__wave" onClick={e => seekVoice(m, e)} role="slider" aria-label="Avance del audio" aria-valuemin={0} aria-valuemax={Math.round(total)} aria-valuenow={Math.round(pos)}>
-                        {m.wave.map((h, i) => <span key={i} className={(i + 0.5) / m.wave.length <= ratio ? 'wa-voice__bar--played' : ''} style={{ height: h }} />)}
-                        <i className="wa-voice__knob" style={{ left: ratio * 100 + '%' }} />
-                      </div>
-                      {on
-                        ? <button className="wa-voice__speed" onClick={nextSpeed} aria-label="Velocidad de reproducción">{speed}×</button>
-                        : <div className="wa-voice__pic" style={avatar}><span>🎙</span></div>}
-                    </div>
-                    <div className="wa-voice__foot">
-                      <span>{mmss(active ? pos : total)}</span>
-                      {m.transcript
-                        ? <button className="wa-voice__tr" onClick={() => setTranscripts(t => ({ ...t, [m.id]: !t[m.id] }))}>{transcripts[m.id] ? 'Ocultar transcripción' : 'Ver transcripción'}</button>
-                        : <span className="wa-voice__spacer" />}
-                      <span className="wa-meta wa-meta--inline">{m.time}</span>
-                    </div>
-                    {m.transcript && transcripts[m.id] && <div className="wa-voice__text">“{m.transcript}”</div>}
+                    <VoiceNote clip={m.clip} voice={voice} skin="wa" avatar={avatar} time={<span className="wa-meta wa-meta--inline">{m.time}</span>} />
                   </div>
                 </div>
               );

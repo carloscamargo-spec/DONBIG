@@ -45,7 +45,7 @@ Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 mi
 
 ## Secciones de la página
 
-1. **Sitio + BETO** — maqueta de bigbola.mx con el chat de BETO.
+1. **Sitio + BETO** — maqueta de bigbola.mx con el chat de BETO. El primer mensaje es la nota de voz de bienvenida (`public/assets/beto-bienvenida.mp3`, `WELCOME_VOICE` en `src/beto/useVoice.ts`); mientras suena, BETO "habla" en el encabezado.
 2. **BETO en WhatsApp** (simulación) — `src/components/WhatsAppSim.tsx`, guion y retos en `src/beto/coachWa.ts`. BETO despierta al usuario a las 6:30, le manda una nota de voz con audio real (`public/assets/beto-coach.mp3`; duración y onda en `VOICE` de `coachWa.ts`, con campo `transcript` para su texto), le pregunta por el partido de la semana y lo reta con encuestas (datos reales, reglas de casino, bono). Si falla o se duerme, le pone lagartijas; con 5 retos sube a "Especialista BETO". El texto libre va a la IA con `channel: "whatsapp"` (la IA puede asignar lagartijas con la línea `LAGARTIJAS: +N`).
 3. **BETO en X** (simulación) — `src/components/XFeed.tsx`, posts en `src/beto/xposts.ts`. Perfil, posts con onomatopeyas armados con los partidos reales, encuestas, likes, tendencias y botón para que la IA publique (`channel: "x"`, máx. 280 caracteres).
 4. Sistema gráfico · 5. Cerebro de BETO.
@@ -64,6 +64,7 @@ Los retos de lagartijas son por no saber datos o dormirse, nunca por no apostar,
 - `src/beto/poses.ts` — los 6 gestos, posición de párpados (parpadeo cada 3 s) y animaciones.
 - `src/components/` — `BetoFigure` (personaje animado), `BetoChat` (chat y lanzador), `MessageCard`.
 - `src/beto/api.ts` — cliente de `/api/beto` con canal (`web`, `whatsapp`, `x`).
+- `src/beto/useVoice.ts` + `src/components/VoiceNote.tsx` — reproductor de notas de voz (un audio a la vez en la página, onda, salto al tocar, velocidad 1×/1.5×/2×). Para agregar la transcripción de un audio, llena su campo `transcript`.
 - `netlify/functions/beto.ts` — `POST /api/beto` (acepta `channel` para ajustar el estilo): Claude con herramientas (`buscar_partidos`, `pronostico_partido`, `juegos_casino`, `info_sitio`, `jugadores_clave`, `estadisticas_partido`, `sugerir_pausa`). Devuelve `{ text, mode, card }`. Usa respaldo automático del servidor ante rechazos (`fallbacks: "default"`).
 
 ## Pendiente antes de producción

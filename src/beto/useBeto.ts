@@ -7,6 +7,7 @@ import { scripted, type Reply } from './scripted';
 import type { Pose, ReactAnim } from './poses';
 import { playWhistle, unlockAudio } from './whistle';
 import { askBeto } from './api';
+import { WELCOME_VOICE, type VoiceClip } from './useVoice';
 
 export type Intensity = 'suave' | 'normal' | 'rudo';
 
@@ -29,6 +30,8 @@ export interface Msg {
   mode?: ModeKey;
   card?: Card | null;
   replies?: string[];
+  /** Nota de voz (audio real) en lugar de texto. */
+  voice?: VoiceClip;
 }
 
 interface State {
@@ -54,7 +57,10 @@ const hasCard = (m: Msg) => !!m.card;
 export function useBeto(settings: BetoSettings, dataset: Dataset) {
   const [state, setState] = useState<State>(() => ({
     open: true, input: '', typing: false, chipOffset: 0, last: null,
-    messages: [mk('beto', '¿Qué onda, campeón? 👋 Soy BETO, tu coach. Aquí no se viene a adivinar, se viene a leer el partido. ¿A qué equipo le vas, o qué se te antoja hoy?', 'COACH', null, ['Fútbol', 'NFL', 'Béisbol'])],
+    messages: [
+      { ...mk('beto', '', 'COACH'), voice: WELCOME_VOICE },
+      mk('beto', '¿Qué onda, campeón? 👋 Soy BETO, tu coach. Aquí no se viene a adivinar, se viene a leer el partido. ¿A qué equipo le vas, o qué se te antoja hoy?', undefined, null, ['Fútbol', 'NFL', 'Béisbol']),
+    ],
     pose: 'saludo', basePose: 'saludo', react: { id: 0, mode: null }, whistleId: 0, whistling: false, cycle: 0,
   }));
   const set = useCallback((patch: Partial<State> | ((s: State) => Partial<State>)) =>
@@ -103,7 +109,10 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
   }, [set, reactTo]);
 
   const aiReply = useCallback(async (msgs: Msg[]): Promise<Reply | null> => {
-    const history = msgs.map(m => ({ role: m.from === 'user' ? 'user' as const : 'assistant' as const, content: m.from === 'user' ? m.text : '[' + (m.mode || 'COACH') + '] ' + m.text }));
+    const history = msgs.map(m => ({
+      role: m.from === 'user' ? 'user' as const : 'assistant' as const,
+      content: m.from === 'user' ? m.text : '[' + (m.mode || 'COACH') + '] ' + (m.voice ? (m.voice.transcript || '(nota de voz de bienvenida)') : m.text),
+    }));
     return askBeto({ endpoint: cfg.current.endpoint, history, intensity: cfg.current.intensity, channel: 'web' });
   }, []);
 
@@ -129,6 +138,9 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
     set(st => ({ typing: false, messages: [...st.messages, mk('beto', reply.text, reply.mode, reply.card, reply.replies)] }));
     reactTo(reply.mode, !!reply.card);
   }, [set, aiReply, reactTo]);
+
+  /** Marca actividad (p. ej. escuchar una nota de voz) para que BETO no regañe por inactividad. */
+  const touch = useCallback(() => { t.current.lastAct = Date.now(); }, []);
 
   const pokeBeto = useCallback(() => {
     unlockAudio(cfg.current.sound);
@@ -200,6 +212,7 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
     askScripted: (text: string) => ask(text, { forceScript: true }),
     hoverChip: () => { const s = sRef.current; if (!s.typing && s.pose !== 'lado') point(1400); },
     setInput: (input: string) => set({ input }),
+    touch,
     open: () => set({ open: true }),
     close: () => set({ open: false }),
     pokeBeto,

@@ -3,6 +3,7 @@
 // deportes y juegos. Si no sabe un dato o se duerme, le tocan lagartijas (en broma).
 // Las lagartijas nunca son por no apostar o no depositar: el bono es opcional.
 import { featuredMatch, type Dataset, type Match } from './data';
+import type { VoiceClip } from './useVoice';
 
 export const LEVEL_GOAL = 5;
 
@@ -105,7 +106,7 @@ export const NAGS = [
 
 export const WAKE_UP = '¡Buenos días, campeón! ☀️ Son las 6:30 y tú todavía con la almohada pegada 😴';
 /** Nota de voz de BETO: audio real del coach (public/assets/beto-coach.mp3, 12 s). */
-export const VOICE = {
+export const VOICE: VoiceClip = {
   src: '/assets/beto-coach.mp3',
   dur: 12.4,
   /** Alturas de las barras, calculadas de la onda del audio. */
