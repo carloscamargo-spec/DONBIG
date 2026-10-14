@@ -12,7 +12,9 @@ const MODEL = process.env.BETO_MODEL || 'claude-sonnet-5-5';
 const MAX_TOOL_ROUNDS = 4;
 const INTENSITIES = ['suave', 'normal', 'rudo'] as const;
 
-const client = new Anthropic();
+/** Clave de Anthropic. Acepta ANTHROPIC_API_KEY o beto_key1 / BETO_KEY1 (como quedó en Netlify). */
+const ANTHROPIC_KEY = (process.env.ANTHROPIC_API_KEY || process.env.beto_key1 || process.env.BETO_KEY1 || '').trim();
+const client = new Anthropic({ apiKey: ANTHROPIC_KEY || undefined });
 
 const equipo = { type: 'object' as const, properties: { equipo: { type: 'string' } }, required: ['equipo'] };
 
@@ -133,8 +135,8 @@ const json = (body: unknown, status = 200) =>
 
 export default async (req: Request) => {
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.error('Falta ANTHROPIC_API_KEY: BETO responde con frases armadas.');
+  if (!ANTHROPIC_KEY) {
+    console.error('Falta ANTHROPIC_API_KEY (o beto_key1): BETO responde con frases armadas.');
     return json({ error: 'no_key' }, 503);
   }
   let body: { history?: unknown; intensity?: unknown };

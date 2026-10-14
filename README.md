@@ -25,7 +25,7 @@ Servidor (Netlify → Environment variables):
 
 | Variable | Para qué | Default |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | IA de BETO (obligatoria para respuestas libres) | — |
+| `ANTHROPIC_API_KEY` (o `beto_key1`) | IA de BETO (obligatoria para respuestas libres) | — |
 | `API_FOOTBALL_KEY` (o `API_FOOTBALL`) | Partidos reales de Liga MX (api-sports.io). Sin ella, datos de ejemplo | — |
 | `BETO_MODEL` | Modelo de Claude | `claude-sonnet-5-5` |
 | `BETO_LEAGUE_ID` | Liga de API-Football | `262` (Liga MX) |
