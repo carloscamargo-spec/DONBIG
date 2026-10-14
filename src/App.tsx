@@ -3,6 +3,8 @@ import { DEMO, MODES, SPORTS, type Dataset, type Sport } from './beto/data';
 import { AVATAR_BASE, AVATAR_POINT } from './beto/poses';
 import { useBeto, type BetoSettings } from './beto/useBeto';
 import { BetoChat } from './components/BetoChat';
+import { WhatsAppSim } from './components/WhatsAppSim';
+import { XFeed } from './components/XFeed';
 
 const avatar = (src: string) => ({ backgroundImage: `url(${src})` });
 
@@ -126,8 +128,26 @@ export function App({ settings }: { settings: BetoSettings }) {
         </div>
       </section>
 
-      <section className="section section--sub" data-screen-label="02 Sistema gráfico">
-        <div className="sec-head"><div className="eyebrow">02</div><h2>Sistema gráfico</h2></div>
+      <section className="section section--sub" data-screen-label="02 BETO en WhatsApp">
+        <div className="sec-head">
+          <div className="eyebrow">02 · Simulación</div>
+          <h2>BETO en tu WhatsApp</h2>
+          <p className="sec-sub">El mismo coach, ahora como contacto. Te despierta, te reta y te entrena con datos reales hasta volverte especialista. Contesta las encuestas o escríbele.</p>
+        </div>
+        <WhatsAppSim dataset={dataset} settings={settings} />
+      </section>
+
+      <section className="section section--sub" data-screen-label="03 BETO en X">
+        <div className="sec-head">
+          <div className="eyebrow">03 · Simulación</div>
+          <h2>BETO en X</h2>
+          <p className="sec-sub">Postea cada jornada a su manera: onomatopeyas, burlas de cancha y datos. Los posts salen de los partidos reales de Liga MX, Premier League, NFL y MLB.</p>
+        </div>
+        <XFeed dataset={dataset} settings={settings} />
+      </section>
+
+      <section className="section section--sub" data-screen-label="04 Sistema gráfico">
+        <div className="sec-head"><div className="eyebrow">04</div><h2>Sistema gráfico</h2></div>
 
         <div className="gs-grid">
           <div className="gs-poses">
@@ -194,8 +214,8 @@ export function App({ settings }: { settings: BetoSettings }) {
         </div>
       </section>
 
-      <section className="section section--sub section--last" data-screen-label="03 Cerebro de BETO">
-        <div className="sec-head"><div className="eyebrow">03</div><h2>Cerebro de BETO</h2></div>
+      <section className="section section--sub section--last" data-screen-label="05 Cerebro de BETO">
+        <div className="sec-head"><div className="eyebrow">05</div><h2>Cerebro de BETO</h2></div>
         <div className="steps">
           {STEPS.map(([t, d]) => <div key={t} className="step"><span className="step__t">{t}</span><span className="step__d">{d}</span></div>)}
         </div>

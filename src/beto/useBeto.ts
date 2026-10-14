@@ -6,6 +6,7 @@ import type { Card } from './cards';
 import { scripted, type Reply } from './scripted';
 import type { Pose, ReactAnim } from './poses';
 import { playWhistle, unlockAudio } from './whistle';
+import { askBeto } from './api';
 
 export type Intensity = 'suave' | 'normal' | 'rudo';
 
@@ -102,15 +103,8 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
   }, [set, reactTo]);
 
   const aiReply = useCallback(async (msgs: Msg[]): Promise<Reply | null> => {
-    const history = msgs.map(m => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.from === 'user' ? m.text : '[' + (m.mode || 'COACH') + '] ' + m.text }));
-    const res = await fetch(cfg.current.endpoint, {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ history, intensity: cfg.current.intensity }),
-    });
-    if (!res.ok) return null;
-    const r = await res.json();
-    if (!(r && typeof r.text === 'string' && r.text && MODES[r.mode as ModeKey])) return null;
-    return { ...r, replies: Array.isArray(r.replies) ? r.replies.filter((x: unknown) => typeof x === 'string').slice(0, 3) : undefined } as Reply;
+    const history = msgs.map(m => ({ role: m.from === 'user' ? 'user' as const : 'assistant' as const, content: m.from === 'user' ? m.text : '[' + (m.mode || 'COACH') + '] ' + m.text }));
+    return askBeto({ endpoint: cfg.current.endpoint, history, intensity: cfg.current.intensity, channel: 'web' });
   }, []);
 
   const ask = useCallback(async (text: string, opts: { chip?: string | null; forceScript?: boolean } = {}) => {

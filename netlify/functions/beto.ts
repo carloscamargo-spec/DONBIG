@@ -11,6 +11,24 @@ import { getDataset } from '../../src/server/apiFootball';
 const MODEL = process.env.BETO_MODEL || 'claude-sonnet-5-5';
 const MAX_TOOL_ROUNDS = 4;
 const INTENSITIES = ['suave', 'normal', 'rudo'] as const;
+const CHANNELS = ['web', 'whatsapp', 'x'] as const;
+type Channel = (typeof CHANNELS)[number];
+
+/** Ajustes de estilo según dónde habla BETO. */
+const CHANNEL_PROMPT: Record<Channel, string> = {
+  web: '',
+  whatsapp: '\n\nCanal: WhatsApp. Eres el coach que vive en el WhatsApp del usuario y no lo deja dormirse.\n' +
+    '- Escribe como chat real: de 1 a 3 mensajes cortos separados por una línea en blanco. Más emojis y energía de entrenador.\n' +
+    '- Tu misión es transformarlo en especialista de deportes y juegos: le compartes datos reales (usa las herramientas), le haces trivia y retos.\n' +
+    '- Si no sabe un dato, falla un reto o se duerme, le pones lagartijas en broma (entre 10 y 50). Si dice que ya las hizo, lo felicitas y se las perdonas.\n' +
+    '- Cuando asignes o perdones lagartijas, agrega al final una línea aparte: LAGARTIJAS: +20 (o -20 para perdonar).\n' +
+    '- Las lagartijas son por no saber datos, no leer condiciones o dormirse; NUNCA por no apostar, no depositar o no activar un bono. El bono es opcional.\n' +
+    '- Termina con una pregunta y su línea OPCIONES.',
+  x: '\n\nCanal: X (Twitter). Escribe UN solo post público, máximo 260 caracteres, sin etiqueta de modo y sin línea OPCIONES.\n' +
+    '- Estilo: narrador burlón de cancha con onomatopeyas (¡PUM!, ¡ZAS!, ¡PLAF!, ¡CRACK!, ¡BOOM!, ¡ÑAAAM!, ¡FIUUU!, ¡ZZZZ!) y trash talk en broma.\n' +
+    '- Búrlate de jugadas, defensas, rachas o marcadores; nunca insultes a personas, aficiones ni uses groserías o temas sensibles.\n' +
+    '- Usa datos reales de buscar_partidos y cierra con 1 o 2 hashtags (#LigaMX, #NFL, #MLB, #PremierLeague...).',
+};
 
 /** Clave de Anthropic. Acepta ANTHROPIC_API_KEY o beto_key1 / BETO_KEY1 (como quedó en Netlify). */
 const ANTHROPIC_KEY = (process.env.ANTHROPIC_API_KEY || process.env.beto_key1 || process.env.BETO_KEY1 || '').trim();
@@ -150,11 +168,12 @@ export default async (req: Request) => {
     console.error('Falta ANTHROPIC_API_KEY (o beto_key1): BETO responde con frases armadas.');
     return json({ error: 'no_key' }, 503);
   }
-  let body: { history?: unknown; intensity?: unknown };
+  let body: { history?: unknown; intensity?: unknown; channel?: unknown };
   try { body = await req.json(); } catch { return json({ error: 'bad_json' }, 400); }
   const messages = parseHistory(body.history);
   if (!messages) return json({ error: 'bad_history' }, 400);
   const intensity = INTENSITIES.includes(body.intensity as never) ? (body.intensity as string) : 'normal';
+  const channel: Channel = CHANNELS.includes(body.channel as never) ? (body.channel as Channel) : 'web';
 
   let card: Card | null = null;
   const ds = await getDataset();
@@ -166,7 +185,7 @@ export default async (req: Request) => {
         betas: ['server-side-fallback-2026-07-01'],
         fallbacks: 'default',
         output_config: { effort: 'low' },
-        system: systemPrompt(intensity) + '\nHoy es ' + TODAY.format(new Date()) + ' (hora del centro de México).' + dataNote(ds),
+        system: systemPrompt(intensity) + CHANNEL_PROMPT[channel] + '\nHoy es ' + TODAY.format(new Date()) + ' (hora del centro de México).' + dataNote(ds),
         tools: TOOLS,
         messages,
       });
@@ -190,15 +209,20 @@ export default async (req: Request) => {
       const tag = text.match(/^\s*\[(COACH|REGA[NÑ]O|IMPULSO|CHISTE)\]\s*/i);
       const key = tag ? norm(tag[1]).toUpperCase() : 'COACH';
       const mode: ModeKey = isMode(key) ? key : 'COACH';
-      let clean = text.replace(/^\s*\[[^\]]+\]\s*/, '').trim();
+      let clean = text.replace(/^\s*\[[^\]]+\]\s*/, '');
       let replies: string[] | undefined;
-      const opt = clean.match(/\n?\s*OPCIONES:\s*(.+)\s*$/i);
-      if (opt) {
-        replies = opt[1].split('|').map(x => x.trim().replace(/^[-•*]\s*/, '')).filter(x => x && x.length <= 40).slice(0, 3);
-        clean = clean.slice(0, opt.index).trim();
-      }
+      let pushups: number | undefined;
+      clean = clean.replace(/^[ \t]*OPCIONES:[ \t]*(.+)$/gim, (_, list: string) => {
+        replies = list.split('|').map(x => x.trim().replace(/^[-•*]\s*/, '')).filter(x => x && x.length <= 40).slice(0, 3);
+        return '';
+      });
+      clean = clean.replace(/^[ \t]*LAGARTIJAS:[ \t]*([+-]?\d+)[ \t]*$/gim, (_, n: string) => {
+        pushups = Math.max(-500, Math.min(100, Number(n)));
+        return '';
+      }).trim();
       if (!clean) return json({ error: 'empty' }, 502);
-      return json({ text: clean, mode, card, replies });
+      if (channel === 'x') { replies = undefined; card = null; }
+      return json({ text: clean, mode, card, replies, pushups });
     }
     return json({ error: 'too_many_rounds' }, 502);
   } catch (e) {

@@ -74,6 +74,7 @@ button { font-family: inherit; }
 .intro__text { margin: 0; font-size: 16px; color: var(--texto-suave); max-width: 640px; text-wrap: pretty; }
 .sec-head { display: flex; flex-direction: column; gap: 6px; }
 .sec-head h2 { margin: 0; font-size: 36px; font-weight: 900; letter-spacing: -.02em; }
+.sec-sub { margin: 4px 0 8px; max-width: 720px; font-size: 16px; line-height: 1.5; color: var(--texto-suave); }
 
 /* ---------- Maqueta del sitio ---------- */
 .site { border-radius: 24px; overflow: hidden; border: 1px solid var(--linea); background: radial-gradient(120% 90% at 75% 0%, #123077 0%, #0A1B45 45%, #06122E 100%); }

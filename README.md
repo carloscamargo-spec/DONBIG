@@ -43,6 +43,15 @@ BETO explica juegos de casino paso a paso (tarjeta "Cómo se juega", datos en `C
 
 Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 min si hay uno en vivo), pronósticos 6 h, goleadores 12 h. Una actualización completa cuesta ~7 consultas; si algo falla, se sirve lo último guardado y no se reintenta en 10 min.
 
+## Secciones de la página
+
+1. **Sitio + BETO** — maqueta de bigbola.mx con el chat de BETO.
+2. **BETO en WhatsApp** (simulación) — `src/components/WhatsAppSim.tsx`, guion y retos en `src/beto/coachWa.ts`. BETO despierta al usuario a las 6:30, le manda nota de voz, le pregunta por el partido de la semana y lo reta con encuestas (datos reales, reglas de casino, bono). Si falla o se duerme, le pone lagartijas; con 5 retos sube a "Especialista BETO". El texto libre va a la IA con `channel: "whatsapp"` (la IA puede asignar lagartijas con la línea `LAGARTIJAS: +N`).
+3. **BETO en X** (simulación) — `src/components/XFeed.tsx`, posts en `src/beto/xposts.ts`. Perfil, posts con onomatopeyas armados con los partidos reales, encuestas, likes, tendencias y botón para que la IA publique (`channel: "x"`, máx. 280 caracteres).
+4. Sistema gráfico · 5. Cerebro de BETO.
+
+Los retos de lagartijas son por no saber datos o dormirse, nunca por no apostar, no depositar o no activar el bono. Las burlas de X son a jugadas y marcadores, nunca a personas ni aficiones.
+
 ## Cómo está armado
 
 - `src/beto/data.ts` — tipos, `Dataset`, datos de ejemplo (`DEMO`), juegos y secciones de bigbola.mx, momios simulados y frases.
@@ -54,7 +63,8 @@ Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 mi
 - `src/beto/useBeto.ts` — motor del chat: poses, reacciones por modo, silbatazo, regaños por inactividad (25 s / 30 s, hasta 3), gestos cada 6 s minimizado y cada 10 s abierto.
 - `src/beto/poses.ts` — los 6 gestos, posición de párpados (parpadeo cada 3 s) y animaciones.
 - `src/components/` — `BetoFigure` (personaje animado), `BetoChat` (chat y lanzador), `MessageCard`.
-- `netlify/functions/beto.ts` — `POST /api/beto`: Claude con herramientas (`buscar_partidos`, `pronostico_partido`, `juegos_casino`, `info_sitio`, `jugadores_clave`, `estadisticas_partido`, `sugerir_pausa`). Devuelve `{ text, mode, card }`. Usa respaldo automático del servidor ante rechazos (`fallbacks: "default"`).
+- `src/beto/api.ts` — cliente de `/api/beto` con canal (`web`, `whatsapp`, `x`).
+- `netlify/functions/beto.ts` — `POST /api/beto` (acepta `channel` para ajustar el estilo): Claude con herramientas (`buscar_partidos`, `pronostico_partido`, `juegos_casino`, `info_sitio`, `jugadores_clave`, `estadisticas_partido`, `sugerir_pausa`). Devuelve `{ text, mode, card }`. Usa respaldo automático del servidor ante rechazos (`fallbacks: "default"`).
 
 ## Pendiente antes de producción
 
