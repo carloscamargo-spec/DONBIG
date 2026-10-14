@@ -51,8 +51,8 @@ export interface MatchStats {
 }
 
 export interface Dataset {
-  /** 'api-football' = datos reales; 'demo' = datos de ejemplo. */
-  source: 'api-football' | 'demo';
+  /** 'api-football' o 'thesportsdb' = datos reales; 'demo' = datos de ejemplo. */
+  source: 'api-football' | 'thesportsdb' | 'demo';
   updatedAt: string | null;
   matches: Match[];
   players: Record<string, Player[]>;

@@ -61,7 +61,7 @@ function useDataset(url: string) {
 export function App({ settings }: { settings: BetoSettings }) {
   const dataset = useDataset(settings.dataEndpoint);
   const beto = useBeto(settings, dataset);
-  const real = dataset.source === 'api-football';
+  const real = dataset.source !== 'demo';
 
   return (
     <div className="page">
@@ -76,7 +76,7 @@ export function App({ settings }: { settings: BetoSettings }) {
           <div className="site__nav">
             <div className="site__logo">BIG BOLA</div>
             <nav className="site__links"><span>Deportes</span><span>Partidos</span><span>Casino</span><span>Mi equipo</span></nav>
-            <div className={'site__badge' + (real ? ' site__badge--live' : '')} title={dataset.notice || (real ? 'Partidos reales de Liga MX vía API-Football' : 'Datos de ejemplo')}>
+            <div className={'site__badge' + (real ? ' site__badge--live' : '')} title={dataset.notice || (real ? 'Partidos reales de Liga MX vía ' + (dataset.source === 'thesportsdb' ? 'TheSportsDB' : 'API-Football') : 'Datos de ejemplo')}>
               {real ? 'DATOS REALES · LIGA MX' : 'DATOS DE EJEMPLO'}
             </div>
           </div>

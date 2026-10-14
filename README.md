@@ -31,6 +31,9 @@ Servidor (Netlify → Environment variables):
 | `BETO_LEAGUE_ID` | Liga de API-Football | `262` (Liga MX) |
 | `BETO_SEASON` | Forzar temporada (si el plan no da la actual) | la actual |
 | `BETO_LIVE_TTL_MIN` | Minutos de caché con partidos en vivo | `5` |
+| `THESPORTSDB_KEY` | Clave de TheSportsDB (respaldo gratis) | `123` (pública) |
+
+Fuentes de partidos, en orden: **API-Football** (si hay clave y el plan da la temporada actual; el plan gratis no la da), **TheSportsDB** (gratis, sin registro: calendario, resultados y tabla; el pronóstico se estima con la tabla) y, si ambas fallan, **datos de ejemplo**.
 
 `/api/partidos` devuelve el Dataset que usa el sitio. Si `source` es `demo`, el campo `notice` explica por qué (falta la clave, plan sin acceso a la temporada, cuota agotada…). La insignia del sitio dice **DATOS REALES · LIGA MX** o **DATOS DE EJEMPLO**.
 

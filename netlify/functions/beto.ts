@@ -91,8 +91,8 @@ function runTool(name: string, input: Record<string, unknown>, ds: Dataset): { r
 
 const TODAY = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', dateStyle: 'full', timeStyle: 'short' });
 
-const dataNote = (ds: Dataset) => ds.source === 'api-football'
-  ? '\nDatos: partidos reales de Liga MX vía API-Football (actualizados ' + (ds.updatedAt ? TODAY.format(new Date(ds.updatedAt)) : 'recientemente') + '). Solo cubren Liga MX; si preguntan por otra liga o deporte, di que por ahora solo traes Liga MX.'
+const dataNote = (ds: Dataset) => ds.source !== 'demo'
+  ? '\nDatos: partidos reales de Liga MX vía ' + (ds.source === 'thesportsdb' ? 'TheSportsDB (pronóstico estimado con la tabla, sin goleadores)' : 'API-Football') + ' (actualizados ' + (ds.updatedAt ? TODAY.format(new Date(ds.updatedAt)) : 'recientemente') + '). Solo cubren Liga MX; si preguntan por otra liga o deporte, di que por ahora solo traes Liga MX.'
   : '\nDatos: son DE EJEMPLO, no reales. Si el usuario pregunta si son reales, díselo con honestidad.';
 
 const systemPrompt = (intensity: string) =>
@@ -133,6 +133,10 @@ const json = (body: unknown, status = 200) =>
 
 export default async (req: Request) => {
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('Falta ANTHROPIC_API_KEY: BETO responde con frases armadas.');
+    return json({ error: 'no_key' }, 503);
+  }
   let body: { history?: unknown; intensity?: unknown };
   try { body = await req.json(); } catch { return json({ error: 'bad_json' }, 400); }
   const messages = parseHistory(body.history);

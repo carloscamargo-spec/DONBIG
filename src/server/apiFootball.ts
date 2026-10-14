@@ -14,7 +14,7 @@ const LEAGUE = Number(process.env.BETO_LEAGUE_ID || 262); // 262 = Liga MX
 const TZ = 'America/Mexico_City';
 const MAX_MATCHES = 4;
 
-const MIN = 60_000, HOUR = 60 * MIN;
+export const MIN = 60_000, HOUR = 60 * MIN;
 const TTL = {
   season: 24 * HOUR,
   fixturesLive: Number(process.env.BETO_LIVE_TTL_MIN || 5) * MIN,
@@ -35,7 +35,7 @@ const apiKey = () => (process.env.API_FOOTBALL_KEY || process.env.API_FOOTBALL |
 // ---------- HTTP ----------
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Json = any;
+export type Json = any;
 
 async function af(path: string, params: Record<string, string | number>): Promise<Json[]> {
   const key = apiKey();
@@ -80,7 +80,7 @@ async function writeEntry<T>(key: string, e: Entry<T>) {
 }
 
 /** Devuelve el valor en caché si sigue vigente; si no, lo pide. Si falla, sirve el viejo. */
-async function cached<T>(key: string, ttl: number | ((data: T) => number), load: () => Promise<T>): Promise<T> {
+export async function cached<T>(key: string, ttl: number | ((data: T) => number), load: () => Promise<T>): Promise<T> {
   const old = await readEntry<T>(key);
   if (old && Date.now() - old.at < old.ttl) return old.data;
   const fail = failures.get(key);
@@ -126,9 +126,9 @@ const ALIASES: Record<string, string[]> = {
 };
 const STOP = new Set(['club', 'fc', 'cf', 'de', 'del', 'la', 'el', 'futbol', 'deportivo']);
 
-const shortName = (name: string) => SHORT[norm(name)] ?? name;
+export const shortName = (name: string) => SHORT[norm(name)] ?? name;
 
-function teamKeys(raw: string): string[] {
+export function teamKeys(raw: string): string[] {
   const short = shortName(raw);
   const words = `${norm(raw)} ${norm(short)}`.split(/[^a-z0-9]+/).filter(w => w.length >= 4 && !STOP.has(w));
   return [...new Set([norm(short), ...words, ...(ALIASES[short] ?? [])])];
@@ -139,7 +139,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-MX', { timeZone: TZ, hour: '2-digit
 const DATE_FMT = new Intl.DateTimeFormat('es-MX', { timeZone: TZ, day: 'numeric', month: 'numeric' });
 const ISO_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
 
-function kickoff(iso: string) {
+export function kickoff(iso: string) {
   const d = new Date(iso);
   const wd = DAY_FMT.format(d).replace('.', '');
   const day = wd.charAt(0).toUpperCase() + wd.slice(1);
@@ -149,13 +149,13 @@ function kickoff(iso: string) {
 
 const isoDay = (offsetDays: number) => ISO_DAY.format(new Date(Date.now() + offsetDays * 24 * HOUR));
 
-function roundLabel(round: string | undefined) {
+export function roundLabel(round: string | undefined) {
   const n = round?.match(/(\d+)\s*$/)?.[1];
   return 'Liga MX · ' + (n ? 'Jornada ' + n : round || 'Temporada');
 }
 
 const FORM: Record<string, string> = { W: 'G', D: 'E', L: 'P' };
-const form = (s: string | null | undefined) =>
+export const form = (s: string | null | undefined) =>
   (s || '').slice(-5).split('').map(c => FORM[c] ?? c).join(' ');
 
 const pct = (v: unknown) => {
@@ -297,15 +297,31 @@ async function buildDataset(): Promise<Dataset> {
   return ds;
 }
 
-/** Dataset para BETO: real si hay API-Football; si no, el de ejemplo con el motivo. */
+/** Dataset de API-Football, o lanza error si no se puede. */
+async function apiFootballDataset(): Promise<Dataset> {
+  const ds = await buildDataset();
+  if (!ds.matches.length) throw new ApiFootballError('no devolvió partidos de Liga MX en estas fechas');
+  return ds;
+}
+
+/**
+ * Dataset para BETO. Orden: API-Football (si hay clave y el plan da la temporada),
+ * luego TheSportsDB (gratis, sin clave) y al final los datos de ejemplo.
+ */
 export async function getDataset(): Promise<Dataset> {
-  if (!apiKey()) return { ...DEMO, notice: 'Sin API_FOOTBALL_KEY: datos de ejemplo.' };
+  const notes: string[] = [];
+  if (apiKey()) {
+    try { return await apiFootballDataset(); }
+    catch (e) { console.error('API-Football:', (e as Error).message); notes.push('API-Football: ' + (e as Error).message); }
+  }
   try {
-    const ds = await buildDataset();
-    if (!ds.matches.length) return { ...DEMO, notice: 'API-Football no devolvió partidos de Liga MX en estas fechas.' };
+    const { theSportsDbDataset } = await import('./theSportsDb');
+    const ds = await theSportsDbDataset();
+    if (notes.length) ds.notice = notes.join(' · ') + ' → usando TheSportsDB.';
     return ds;
   } catch (e) {
-    console.error('API-Football:', (e as Error).message);
-    return { ...DEMO, notice: 'API-Football no respondió: ' + (e as Error).message };
+    console.error('TheSportsDB:', (e as Error).message);
+    notes.push('TheSportsDB: ' + (e as Error).message);
   }
+  return { ...DEMO, notice: notes.join(' · ') };
 }
