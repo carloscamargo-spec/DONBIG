@@ -27,6 +27,7 @@ export interface Msg {
   text: string;
   mode?: ModeKey;
   card?: Card | null;
+  replies?: string[];
 }
 
 interface State {
@@ -45,14 +46,14 @@ interface State {
 }
 
 let uid = 0;
-const mk = (from: Msg['from'], text: string, mode?: ModeKey, card?: Card | null): Msg => ({ id: ++uid, from, text, mode, card });
+const mk = (from: Msg['from'], text: string, mode?: ModeKey, card?: Card | null, replies?: string[]): Msg => ({ id: ++uid, from, text, mode, card, replies });
 
 const hasCard = (m: Msg) => !!m.card;
 
 export function useBeto(settings: BetoSettings, dataset: Dataset) {
   const [state, setState] = useState<State>(() => ({
     open: true, input: '', typing: false, chipOffset: 0, last: null,
-    messages: [mk('beto', '¿Qué onda, campeón? 👋 Soy BETO, tu coach. Aquí no se viene a adivinar, se viene a leer el partido. ¿A qué equipo le vas?', 'COACH')],
+    messages: [mk('beto', '¿Qué onda, campeón? 👋 Soy BETO, tu coach. Aquí no se viene a adivinar, se viene a leer el partido. ¿A qué equipo le vas, o qué se te antoja hoy?', 'COACH', null, ['Fútbol', 'NFL', 'Béisbol'])],
     pose: 'saludo', basePose: 'saludo', react: { id: 0, mode: null }, whistleId: 0, whistling: false, cycle: 0,
   }));
   const set = useCallback((patch: Partial<State> | ((s: State) => Partial<State>)) =>
@@ -108,7 +109,8 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
     });
     if (!res.ok) return null;
     const r = await res.json();
-    return r && typeof r.text === 'string' && r.text && MODES[r.mode as ModeKey] ? (r as Reply) : null;
+    if (!(r && typeof r.text === 'string' && r.text && MODES[r.mode as ModeKey])) return null;
+    return { ...r, replies: Array.isArray(r.replies) ? r.replies.filter((x: unknown) => typeof x === 'string').slice(0, 3) : undefined } as Reply;
   }, []);
 
   const ask = useCallback(async (text: string, opts: { chip?: string | null; forceScript?: boolean } = {}) => {
@@ -130,7 +132,7 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
       r = scripted(opts.chip ? CHIP_Q[opts.chip] : clean, dsRef.current);
     }
     const reply = r;
-    set(st => ({ typing: false, messages: [...st.messages, mk('beto', reply.text, reply.mode, reply.card)] }));
+    set(st => ({ typing: false, messages: [...st.messages, mk('beto', reply.text, reply.mode, reply.card, reply.replies)] }));
     reactTo(reply.mode, !!reply.card);
   }, [set, aiReply, reactTo]);
 
@@ -187,9 +189,10 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
     };
   }, [set, setPose, whistle, push]);
 
-  const pool = CHIPS.filter(c => c !== state.last);
-  const chips = Array.from({ length: 4 }, (_, i) => pool[(state.chipOffset + i) % pool.length]);
   const lastBeto = [...state.messages].reverse().find(m => m.from === 'beto');
+  const pool = CHIPS.filter(c => c !== state.last);
+  const replies = lastBeto?.replies ?? [];
+  const chips = [...replies, ...Array.from({ length: 4 }, (_, i) => pool[(state.chipOffset + i) % pool.length]).filter(c => !replies.includes(c))];
 
   return {
     state,
@@ -197,7 +200,9 @@ export function useBeto(settings: BetoSettings, dataset: Dataset) {
     headerMode: MODES[lastBeto?.mode ?? 'COACH'],
     nudge: nudgeText(NUDGES[state.cycle % NUDGES.length], dataset),
     ask,
-    askChip: (c: string) => ask(c, { chip: c, forceScript: true }),
+    /** Botones fijos usan respuesta armada; las respuestas rápidas van como texto normal. */
+    askChip: (c: string) => (CHIP_Q[c] ? ask(c, { chip: c, forceScript: true }) : ask(c)),
+    isReply: (c: string) => !!lastBeto?.replies?.includes(c),
     askScripted: (text: string) => ask(text, { forceScript: true }),
     hoverChip: () => { const s = sRef.current; if (!s.typing && s.pose !== 'lado') point(1400); },
     setInput: (input: string) => set({ input }),

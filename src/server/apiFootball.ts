@@ -124,7 +124,7 @@ const ALIASES: Record<string, string[]> = {
   'Atlas': ['zorros'], 'Puebla': ['franja', 'camoteros'], 'Querétaro': ['gallos'], 'Necaxa': ['rayos'],
   'Juárez': ['bravos'], 'Mazatlán': ['canoneros'], 'San Luis': ['potosinos'],
 };
-const STOP = new Set(['club', 'fc', 'cf', 'de', 'del', 'la', 'el', 'futbol', 'deportivo']);
+const STOP = new Set(['club', 'fc', 'cf', 'de', 'del', 'la', 'el', 'futbol', 'deportivo', 'city', 'angeles']);
 
 export const shortName = (name: string) => SHORT[norm(name)] ?? name;
 
@@ -305,23 +305,31 @@ async function apiFootballDataset(): Promise<Dataset> {
 }
 
 /**
- * Dataset para BETO. Orden: API-Football (si hay clave y el plan da la temporada),
- * luego TheSportsDB (gratis, sin clave) y al final los datos de ejemplo.
+ * Dataset para BETO.
+ * Fútbol mexicano: API-Football (si hay clave y el plan da la temporada), si no TheSportsDB.
+ * Además suma Premier League, NFL y MLB de TheSportsDB. Si nada responde, datos de ejemplo.
  */
 export async function getDataset(): Promise<Dataset> {
   const notes: string[] = [];
+  const { theSportsDbDataset, extraLeagues } = await import('./theSportsDb');
+  const extrasP = extraLeagues().catch(e => ({ matches: [], stats: {}, errors: [(e as Error).message] }));
+
+  let core: Dataset | null = null;
   if (apiKey()) {
-    try { return await apiFootballDataset(); }
+    try { core = await apiFootballDataset(); }
     catch (e) { console.error('API-Football:', (e as Error).message); notes.push('API-Football: ' + (e as Error).message); }
   }
-  try {
-    const { theSportsDbDataset } = await import('./theSportsDb');
-    const ds = await theSportsDbDataset();
-    if (notes.length) ds.notice = notes.join(' · ') + ' → usando TheSportsDB.';
-    return ds;
-  } catch (e) {
-    console.error('TheSportsDB:', (e as Error).message);
-    notes.push('TheSportsDB: ' + (e as Error).message);
+  if (!core) {
+    try { core = await theSportsDbDataset(); }
+    catch (e) { console.error('TheSportsDB Liga MX:', (e as Error).message); notes.push('TheSportsDB Liga MX: ' + (e as Error).message); }
   }
-  return { ...DEMO, notice: notes.join(' · ') };
+  const extras = await extrasP;
+  if (extras.errors.length) { console.warn('TheSportsDB:', extras.errors.join(' · ')); notes.push(...extras.errors); }
+
+  if (!core && !extras.matches.length) return { ...DEMO, notice: notes.join(' · ') };
+  const ds: Dataset = core ?? { source: 'thesportsdb', updatedAt: new Date().toISOString(), matches: [], players: {}, stats: {} };
+  ds.matches = [...ds.matches, ...extras.matches];
+  ds.stats = { ...ds.stats, ...extras.stats };
+  if (notes.length) ds.notice = notes.join(' · ');
+  return ds;
 }

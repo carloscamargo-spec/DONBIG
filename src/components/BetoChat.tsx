@@ -70,7 +70,7 @@ export function BetoChat({ beto }: { beto: BetoApi }) {
 
       <div className="chat__chips">
         {beto.chips.map(c => (
-          <button key={c} className="chip" onClick={() => beto.askChip(c)} onMouseEnter={beto.hoverChip}>{c}</button>
+          <button key={c} className={'chip' + (beto.isReply(c) ? ' chip--reply' : '')} onClick={() => beto.askChip(c)} onMouseEnter={beto.hoverChip}>{c}</button>
         ))}
       </div>
 

@@ -33,9 +33,11 @@ Servidor (Netlify → Environment variables):
 | `BETO_LIVE_TTL_MIN` | Minutos de caché con partidos en vivo | `5` |
 | `THESPORTSDB_KEY` | Clave de TheSportsDB (respaldo gratis) | `123` (pública) |
 
-Fuentes de partidos, en orden: **API-Football** (si hay clave y el plan da la temporada actual; el plan gratis no la da), **TheSportsDB** (gratis, sin registro: calendario, resultados y tabla; el pronóstico se estima con la tabla) y, si ambas fallan, **datos de ejemplo**.
+Deportes: Liga MX, Premier League, NFL y MLB (estos tres siempre de TheSportsDB). Fuentes de Liga MX, en orden: **API-Football** (si hay clave y el plan da la temporada actual; el plan gratis no la da), **TheSportsDB** (gratis, sin registro: calendario, resultados y tabla; el pronóstico se estima con la tabla) y, si ambas fallan, **datos de ejemplo**.
 
-`/api/partidos` devuelve el Dataset que usa el sitio. Si `source` es `demo`, el campo `notice` explica por qué (falta la clave, plan sin acceso a la temporada, cuota agotada…). La insignia del sitio dice **DATOS REALES · LIGA MX** o **DATOS DE EJEMPLO**.
+`/api/partidos` devuelve el Dataset que usa el sitio. Si `source` es `demo`, el campo `notice` explica por qué (falta la clave, plan sin acceso a la temporada, cuota agotada…). La insignia del sitio dice **DATOS REALES** o **DATOS DE EJEMPLO**. Los botones de deporte filtran los partidos.
+
+BETO explica juegos de casino paso a paso (tarjeta "Cómo se juega", datos en `CASINO` de `src/beto/data.ts`) y termina sus respuestas con una pregunta y respuestas rápidas (en la IA, la línea `OPCIONES:`).
 
 ### Cuota de API-Football (plan gratis ≈ 100 consultas/día)
 

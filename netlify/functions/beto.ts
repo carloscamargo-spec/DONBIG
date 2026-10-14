@@ -3,9 +3,9 @@
 // devuelve { text, mode, card }. Si algo falla, el cliente usa respuestas armadas.
 import Anthropic from '@anthropic-ai/sdk';
 import type { Config } from '@netlify/functions';
-import { CASINO, SITIO, findMatch, findSections, isMode, norm, simOdds, type Dataset, type ModeKey } from '../../src/beto/data';
+import { CASINO, SITIO, findGame, findMatch, findSections, isMode, norm, simOdds, type Dataset, type ModeKey } from '../../src/beto/data';
 import { BONO_BIENVENIDA, KNOWLEDGE, PAGOS, PROMOS } from '../../src/beto/bigbola';
-import { bonusCard, forecastCard, gamesCard, linksCard, matchCard, pauseCard, paymentsCard, playersCard, statsCard, type Card } from '../../src/beto/cards';
+import { bonusCard, forecastCard, gamesCard, guideCard, linksCard, matchCard, pauseCard, paymentsCard, playersCard, statsCard, type Card } from '../../src/beto/cards';
 import { getDataset } from '../../src/server/apiFootball';
 
 const MODEL = process.env.BETO_MODEL || 'claude-sonnet-5-5';
@@ -19,12 +19,13 @@ const client = new Anthropic({ apiKey: ANTHROPIC_KEY || undefined });
 const equipo = { type: 'object' as const, properties: { equipo: { type: 'string' } }, required: ['equipo'] };
 
 const TOOLS: Anthropic.Beta.BetaTool[] = [
-  { name: 'buscar_partidos', description: 'Partidos de Liga MX en vivo, próximos y recién terminados, con hora o marcador, forma y un dato clave. Sin equipo devuelve todos.', input_schema: { type: 'object', properties: { equipo: { type: 'string' } } } },
+  { name: 'buscar_partidos', description: 'Partidos en vivo, próximos y recién terminados de Liga MX, Premier League, NFL y MLB, con hora o marcador, forma y un dato clave. Sin equipo devuelve todos (cada uno trae su deporte).', input_schema: { type: 'object', properties: { equipo: { type: 'string' } } } },
   { name: 'pronostico_partido', description: 'Probabilidades orientativas (local, empate, visita) para un partido.', input_schema: equipo },
   { name: 'juegos_casino', description: 'Juegos de casino de bigbola.mx (slots y casino en vivo) con nota de cada uno. estilo: tranquilo o adrenalina.', input_schema: { type: 'object', properties: { estilo: { type: 'string' } } } },
   { name: 'info_sitio', description: 'Secciones del sitio Big Bola (cuenta, depósitos, promociones, juego responsable, ayuda).', input_schema: { type: 'object', properties: { tema: { type: 'string' } } } },
   { name: 'jugadores_clave', description: 'Jugadores clave de un partido con estadísticas y la opinión de BETO sobre cada uno.', input_schema: equipo },
   { name: 'estadisticas_partido', description: 'Estadísticas comparadas de un partido y posibilidades (mercados) con probabilidad orientativa.', input_schema: equipo },
+  { name: 'explicar_juego', description: 'Explica paso a paso cómo se juega un juego de casino de bigbola.mx (blackjack, ruleta, baccarat, Crazy Time, Gates of Olympus, Sweet Bonanza, Chests of Cai Shen 2) y muestra la tarjeta "Cómo se juega".', input_schema: { type: 'object', properties: { juego: { type: 'string' } }, required: ['juego'] } },
   { name: 'momios_partido', description: 'Momios (cuotas) de un partido en formato decimal y americano. Son SIMULADOS a partir del pronóstico para el demo; dilo así.', input_schema: equipo },
   { name: 'bono_bienvenida', description: 'Bono de bienvenida y promociones de bigbola.mx con sus condiciones (rollover, plazos, juegos que no cuentan). Muestra la tarjeta del bono.', input_schema: { type: 'object', properties: {} } },
   { name: 'metodos_pago', description: 'Métodos de depósito y retiro de bigbola.mx con mínimos y máximos. Muestra la tarjeta de pagos.', input_schema: { type: 'object', properties: {} } },
@@ -80,6 +81,12 @@ function runTool(name: string, input: Record<string, unknown>, ds: Dataset): { r
       const [h, d, a] = p.prob.map(v => simOdds(v));
       return { result: JSON.stringify({ partido: p.local + ' vs ' + p.visita, simulados: true, local: h, empate: d, visita: a }), card: forecastCard(p) };
     }
+    case 'explicar_juego': {
+      const g = findGame(norm(str('juego')));
+      if (!g) return { result: 'Ese juego no está en el catálogo. Disponibles: ' + CASINO.map(x => x.name).join(', ') };
+      const { keys: _k, opciones: _o, ...info } = g;
+      return { result: JSON.stringify(info), card: guideCard(g) };
+    }
     case 'bono_bienvenida':
       return { result: JSON.stringify({ bono: BONO_BIENVENIDA, promos: PROMOS }), card: bonusCard(true) };
     case 'metodos_pago':
@@ -94,7 +101,7 @@ function runTool(name: string, input: Record<string, unknown>, ds: Dataset): { r
 const TODAY = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', dateStyle: 'full', timeStyle: 'short' });
 
 const dataNote = (ds: Dataset) => ds.source !== 'demo'
-  ? '\nDatos: partidos reales de Liga MX vía ' + (ds.source === 'thesportsdb' ? 'TheSportsDB (pronóstico estimado con la tabla, sin goleadores)' : 'API-Football') + ' (actualizados ' + (ds.updatedAt ? TODAY.format(new Date(ds.updatedAt)) : 'recientemente') + '). Solo cubren Liga MX; si preguntan por otra liga o deporte, di que por ahora solo traes Liga MX.'
+  ? '\nDatos: partidos reales (Liga MX vía ' + (ds.source === 'thesportsdb' ? 'TheSportsDB' : 'API-Football') + '; Premier, NFL y MLB vía TheSportsDB; donde no hay pronóstico oficial se estima con la tabla) (actualizados ' + (ds.updatedAt ? TODAY.format(new Date(ds.updatedAt)) : 'recientemente') + '). Cubren Liga MX, Premier League, NFL y MLB; si preguntan por otra liga, dilo con honestidad.'
   : '\nDatos: son DE EJEMPLO, no reales. Si el usuario pregunta si son reales, díselo con honestidad.';
 
 const systemPrompt = (intensity: string) =>
@@ -110,6 +117,10 @@ const systemPrompt = (intensity: string) =>
   '- Regaña la decisión, nunca a la persona. Solo mayores de 18.\n' +
   '- La tarjeta con datos aparece sola debajo de tu mensaje; no repitas todos los números.\n' +
   '- Responde de inmediato; es un chat en vivo.\n' +
+  '- Sé cercano: cuando te pidan explicar un juego (slot, ruleta, blackjack, etc.) baja el tono, háblale como amigo en el vestidor, explícalo sencillo con alguna comparación de cancha y usa explicar_juego para mostrar los pasos.\n' +
+  '- Haz preguntas: casi siempre termina con UNA pregunta para conocer al usuario (equipo o deporte favorito, si viene con calma o por adrenalina, si es su primera vez, si ya tiene su tope del día).\n' +
+  '- Si tu pregunta tiene respuestas cortas, agrega al final una línea aparte: OPCIONES: opción 1 | opción 2 | opción 3 (máximo 3, de 1 a 4 palabras cada una).\n' +
+  '- Conoces Liga MX, Premier League, NFL y MLB: usa buscar_partidos y habla de cada deporte con su lenguaje (goles, touchdowns, carreras).\n' +
   '- Sobre bonos y promociones: explica la oferta con sus condiciones clave (rollover, plazo, juegos que no cuentan) y manda a confirmar vigencia en bigbola.mx. Nunca uses un bono como gancho para recuperar pérdidas ni presiones a depositar.\n' +
   '- Los momios que das son simulados para el demo; si los mencionas, aclara que los reales están en bigbola.mx.\n\n' +
   KNOWLEDGE;
@@ -179,9 +190,15 @@ export default async (req: Request) => {
       const tag = text.match(/^\s*\[(COACH|REGA[NÑ]O|IMPULSO|CHISTE)\]\s*/i);
       const key = tag ? norm(tag[1]).toUpperCase() : 'COACH';
       const mode: ModeKey = isMode(key) ? key : 'COACH';
-      const clean = text.replace(/^\s*\[[^\]]+\]\s*/, '').trim();
+      let clean = text.replace(/^\s*\[[^\]]+\]\s*/, '').trim();
+      let replies: string[] | undefined;
+      const opt = clean.match(/\n?\s*OPCIONES:\s*(.+)\s*$/i);
+      if (opt) {
+        replies = opt[1].split('|').map(x => x.trim().replace(/^[-•*]\s*/, '')).filter(x => x && x.length <= 40).slice(0, 3);
+        clean = clean.slice(0, opt.index).trim();
+      }
       if (!clean) return json({ error: 'empty' }, 502);
-      return json({ text: clean, mode, card });
+      return json({ text: clean, mode, card, replies });
     }
     return json({ error: 'too_many_rounds' }, 502);
   } catch (e) {

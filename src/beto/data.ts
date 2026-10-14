@@ -4,8 +4,22 @@
 
 export type ModeKey = 'COACH' | 'REGANO' | 'IMPULSO' | 'CHISTE';
 
+export type Sport = 'futbol' | 'nfl' | 'beisbol' | 'basquet';
+
+export const SPORTS: Record<Sport, { label: string; words: RegExp }> = {
+  futbol: { label: 'Fútbol', words: /futbol|soccer|liga mx|premier|champions|gol\b/ },
+  nfl: { label: 'NFL', words: /\bnfl\b|americano|touchdown|super ?bowl|emparrillado/ },
+  beisbol: { label: 'Béisbol', words: /beisbol|mlb|serie mundial|jonron|home ?run|pitcher|carreras/ },
+  basquet: { label: 'Básquetbol', words: /basquet|basket|nba|canasta|triple/ },
+};
+
+/** Deporte mencionado en el texto (ya normalizado), si hay. */
+export const sportIn = (t: string) => (Object.keys(SPORTS) as Sport[]).find(k => SPORTS[k].words.test(t));
+
 export interface Match {
   id: string;
+  /** Deporte; si falta, fútbol. */
+  deporte?: Sport;
   liga: string;
   local: string;
   visita: string;
@@ -28,7 +42,17 @@ export interface CasinoGame {
   nota: string;
   estilo: 'tranquilo' | 'adrenalina';
   url: string;
+  /** Palabras para reconocer el juego en el chat (normalizadas). */
+  keys: string[];
+  /** Cómo se juega, en pasos cortos. */
+  como: string[];
+  tip: string;
+  /** Pregunta con la que BETO sigue la plática, y respuestas rápidas. */
+  pregunta: string;
+  opciones: string[];
 }
+
+export const findGame = (t: string) => CASINO.find(g => g.keys.some(k => t.includes(k)));
 
 export interface SiteSection {
   name: string;
@@ -62,20 +86,52 @@ export interface Dataset {
 }
 
 export const MATCHES: Match[] = [
-  { id: 'ame-chi', liga: 'Liga MX · Jornada 12', local: 'América', visita: 'Chivas', hora: 'Sáb 19:05', formaLocal: 'G G G E P', formaVisita: 'G E G P G', prob: [48, 27, 25], dato: 'América ganó 4 de sus últimos 6 clásicos en casa.' },
-  { id: 'tig-mty', liga: 'Liga MX · Jornada 12', local: 'Tigres', visita: 'Monterrey', marcador: "1 - 1 · 63'", formaLocal: 'E G P G E', formaVisita: 'G G E G P', prob: [34, 38, 28], dato: 'Monterrey suma 7 tiros a puerta; Tigres solo 3.' },
-  { id: 'dod-yan', liga: 'MLB · Serie Mundial', local: 'Dodgers', visita: 'Yankees', hora: 'Dom 18:08', formaLocal: 'G G P G G', formaVisita: 'G P G G P', prob: [55, 0, 45], dato: 'El abridor de Dodgers trae 1.98 de efectividad en octubre.' },
-  { id: 'lal-gsw', liga: 'NBA · Temporada regular', local: 'Lakers', visita: 'Warriors', hora: 'Mar 21:30', formaLocal: 'P G G P G', formaVisita: 'G G G P G', prob: [46, 0, 54], dato: 'Warriors promedia 15 triples por partido de visita.' },
+  { id: 'ame-chi', deporte: 'futbol', liga: 'Liga MX · Jornada 12', local: 'América', visita: 'Chivas', hora: 'Sáb 19:05', formaLocal: 'G G G E P', formaVisita: 'G E G P G', prob: [48, 27, 25], dato: 'América ganó 4 de sus últimos 6 clásicos en casa.' },
+  { id: 'tig-mty', deporte: 'futbol', liga: 'Liga MX · Jornada 12', local: 'Tigres', visita: 'Monterrey', marcador: "1 - 1 · 63'", formaLocal: 'E G P G E', formaVisita: 'G G E G P', prob: [34, 38, 28], dato: 'Monterrey suma 7 tiros a puerta; Tigres solo 3.' },
+  { id: 'ars-mci', deporte: 'futbol', liga: 'Premier League · Jornada 9', local: 'Arsenal', visita: 'Man City', hora: 'Dom 10:30', formaLocal: 'G G E G P', formaVisita: 'G E G G G', prob: [38, 28, 34], dato: 'Los últimos 4 duelos entre ellos tuvieron menos de 3 goles.' },
+  { id: 'kc-buf', deporte: 'nfl', liga: 'NFL · Semana 7', local: 'Chiefs', visita: 'Bills', hora: 'Dom 15:25', formaLocal: 'G G P G G', formaVisita: 'G G G P G', prob: [52, 0, 48], dato: 'Partido de ida y vuelta: los dos promedian más de 26 puntos.' },
+  { id: 'dod-yan', deporte: 'beisbol', liga: 'MLB · Serie Mundial', local: 'Dodgers', visita: 'Yankees', hora: 'Dom 18:08', formaLocal: 'G G P G G', formaVisita: 'G P G G P', prob: [55, 0, 45], dato: 'El abridor de Dodgers trae 1.98 de efectividad en octubre.' },
+  { id: 'lal-gsw', deporte: 'basquet', liga: 'NBA · Temporada regular', local: 'Lakers', visita: 'Warriors', hora: 'Mar 21:30', formaLocal: 'P G G P G', formaVisita: 'G G G P G', prob: [46, 0, 54], dato: 'Warriors promedia 15 triples por partido de visita.' },
 ];
 
-// Juegos que aparecen en bigbola.mx (slots y casino en vivo).
+// Juegos que aparecen en bigbola.mx (slots y casino en vivo), con explicación
+// sencilla para que BETO enseñe a jugar. Datos del proveedor; pueden variar.
 export const CASINO: CasinoGame[] = [
-  { name: 'Blackjack en vivo', tipo: 'Casino en vivo', nota: 'Para pensar cada jugada · no cuenta para el rollover del bono', estilo: 'tranquilo', url: 'https://www.bigbola.mx/casino/' },
-  { name: 'Immersive Roulette', tipo: 'Casino en vivo', nota: 'Ruleta con crupier real · no cuenta para el rollover', estilo: 'tranquilo', url: 'https://www.bigbola.mx/casino/' },
-  { name: 'Crazy Time', tipo: 'Show en vivo', nota: 'Rueda con rondas de bonus, mucha acción', estilo: 'adrenalina', url: 'https://www.bigbola.mx/casino/' },
-  { name: 'Gates of Olympus', tipo: 'Slot', nota: 'Multiplicadores de Zeus · volatilidad alta', estilo: 'adrenalina', url: 'https://www.bigbola.mx/' },
-  { name: 'Sweet Bonanza', tipo: 'Slot', nota: 'Dulces en cascada y giros gratis', estilo: 'adrenalina', url: 'https://www.bigbola.mx/' },
-  { name: 'Chests of Cai Shen 2', tipo: 'Slot', nota: 'Aquí van los 100 giros gratis del bono de bienvenida', estilo: 'adrenalina', url: 'https://www.bigbola.mx/' },
+  { name: 'Blackjack en vivo', tipo: 'Casino en vivo', nota: 'Para pensar cada jugada · no cuenta para el rollover del bono', estilo: 'tranquilo', url: 'https://www.bigbola.mx/casino/',
+    keys: ['blackjack', '21'],
+    como: ['Gana quien se acerque más a 21 sin pasarse, tú contra el crupier.', 'Las figuras valen 10 y el As vale 1 u 11.', 'Pides carta ("hit") o te plantas ("stand"); si te pasas de 21, pierdes.', 'Un blackjack (As + 10 en tus dos primeras cartas) normalmente paga 3 a 2.'],
+    tip: 'Es el juego donde tus decisiones más pesan. Ve despacio y no persigas pérdidas.',
+    pregunta: '¿Ya habías jugado blackjack o es tu primera vez en la mesa?', opciones: ['Primera vez', 'Ya sé jugar', 'Prefiero algo más tranquilo'] },
+  { name: 'Immersive Roulette', tipo: 'Casino en vivo', nota: 'Ruleta con crupier real · no cuenta para el rollover', estilo: 'tranquilo', url: 'https://www.bigbola.mx/casino/',
+    keys: ['ruleta', 'roulette'],
+    como: ['Ruleta europea: 37 casillas, del 0 al 36.', 'Apuestas a un número (paga 35 a 1) o a opciones amplias como rojo/negro o par/impar (pagan 1 a 1).', 'El crupier lanza la bola y la cámara te la sigue en cámara lenta.', 'El 0 es la ventaja de la casa: si sale, las apuestas a rojo/negro pierden.'],
+    tip: 'Las apuestas amplias pierden menos rápido; los números sueltos son pura emoción.',
+    pregunta: '¿Te late más ir a lo seguro con rojo o negro, o a la emoción de un número?', opciones: ['Rojo o negro', 'A un número', 'Mejor otro juego'] },
+  { name: 'Baccarat en vivo', tipo: 'Casino en vivo', nota: 'Rápido y sencillo · no cuenta para el rollover', estilo: 'tranquilo', url: 'https://www.bigbola.mx/casino/',
+    keys: ['baccarat', 'bacara'],
+    como: ['Apuestas a Jugador, Banca o Empate antes de repartir.', 'Gana la mano que quede más cerca de 9 (solo cuenta el último dígito: 7+8 = 5).', 'Las cartas se reparten solas; tú no tomas decisiones a media mano.', 'Banca suele cobrar una comisión del 5%; el Empate paga más pero sale poco.'],
+    tip: 'Es de los más simples. El Empate paga bonito, pero casi nunca sale.',
+    pregunta: '¿Buscas algo rápido para un ratito o una mesa para quedarte?', opciones: ['Algo rápido', 'Una mesa tranquila'] },
+  { name: 'Crazy Time', tipo: 'Show en vivo', nota: 'Rueda con rondas de bonus, mucha acción', estilo: 'adrenalina', url: 'https://www.bigbola.mx/casino/',
+    keys: ['crazy time', 'crazy', 'rueda'],
+    como: ['Es una rueda gigante con 54 casillas y un presentador en vivo.', 'Apuestas a dónde caerá: números 1, 2, 5 o 10, o a uno de 4 bonus.', 'Los bonus (Cash Hunt, Pachinko, Coin Flip y Crazy Time) son minijuegos con multiplicadores.', 'Antes de cada giro, una ruleta de arriba puede multiplicar una casilla.'],
+    tip: 'Es un show: diviértete, pero pon un tope antes de la primera vuelta.',
+    pregunta: '¿Lo quieres para divertirte un rato o vienes a cazar bonus? Te digo cómo administrarte.', opciones: ['Para divertirme', 'Quiero bonus', '¿Cuánto me pongo de tope?'] },
+  { name: 'Gates of Olympus', tipo: 'Slot', nota: 'Multiplicadores de Zeus · volatilidad alta', estilo: 'adrenalina', url: 'https://www.bigbola.mx/',
+    keys: ['gates of olympus', 'olympus', 'zeus'],
+    como: ['Tablero de 6 columnas por 5 filas; no hay líneas.', 'Ganas con 8 o más símbolos iguales en cualquier lugar.', 'Los símbolos ganadores desaparecen y caen nuevos ("tumble"): puedes encadenar premios.', 'Zeus suelta multiplicadores, y con 4 o más símbolos de bonus (scatter) entras a giros gratis.'],
+    tip: 'Volatilidad alta: puede tardar en pagar y luego pagar fuerte. Apuesta chico y ten paciencia.',
+    pregunta: '¿Quieres que te diga cómo armar tu presupuesto para un slot de volatilidad alta?', opciones: ['Sí, dime', 'Primero en demo', 'Otro slot'] },
+  { name: 'Sweet Bonanza', tipo: 'Slot', nota: 'Dulces en cascada y giros gratis', estilo: 'adrenalina', url: 'https://www.bigbola.mx/',
+    keys: ['sweet bonanza', 'bonanza', 'dulces'],
+    como: ['Tablero de 6x5 lleno de frutas y dulces; ganas con 8 o más iguales en cualquier lado.', 'Lo que gana desaparece y caen dulces nuevos, como en Gates of Olympus.', 'Con 4 o más paletas (scatter) entras a giros gratis.', 'En los giros gratis caen bombas de colores que multiplican lo que ganes.'],
+    tip: 'Se ve inocente pero es de volatilidad alta. Úsalo con un presupuesto cerrado.',
+    pregunta: '¿Lo pruebas primero en modo demo para agarrarle el ritmo?', opciones: ['Sí, en demo', 'Ya lo conozco', 'Otro juego'] },
+  { name: 'Chests of Cai Shen 2', tipo: 'Slot', nota: 'Aquí van los 100 giros gratis del bono de bienvenida', estilo: 'adrenalina', url: 'https://www.bigbola.mx/',
+    keys: ['cai shen', 'chests', 'cofres'],
+    como: ['Slot de temática de la suerte china con cofres.', 'Es el juego donde caen los 100 giros gratis del bono de bienvenida de Big Bola.', 'Cada giro gratis vale $0.04 y lo máximo que puedes ganar con ellos es $10,000.', 'Las reglas exactas de premios las ves en el botón de información dentro del juego.'],
+    tip: 'Si vienes por el bono, aquí estrenas tus giros. Lee el rollover antes.',
+    pregunta: '¿Ya tienes cuenta en Big Bola o te explico cómo activar el bono?', opciones: ['Ya tengo cuenta', 'Explícame el bono'] },
 ];
 
 // Secciones reales de bigbola.mx.
@@ -126,6 +182,14 @@ export const PLAYERS: Record<string, Player[]> = {
     { name: 'Shohei Ohtani', team: 'Dodgers', pos: 'BD', stat: '.310 AVG · 4 HR en playoffs', op: 'Un batazo y te cambia la serie. Respeto total.' },
     { name: 'Aaron Judge', team: 'Yankees', pos: 'JD', stat: '.265 AVG · 3 HR en playoffs', op: 'Arrancó frío pero cuando se calienta no hay quien lo pare.' },
   ],
+  'ars-mci': [
+    { name: 'Bukayo Saka', team: 'Arsenal', pos: 'EXT', stat: 'Datos de ejemplo', op: 'Desborda por derecha y genera la mitad del peligro del Arsenal.' },
+    { name: 'Erling Haaland', team: 'Man City', pos: 'DEL', stat: 'Datos de ejemplo', op: 'Con media oportunidad te castiga. Hay que cerrarle el área.' },
+  ],
+  'kc-buf': [
+    { name: 'Patrick Mahomes', team: 'Chiefs', pos: 'QB', stat: 'Datos de ejemplo', op: 'Si el partido está cerrado al final, la pelota está en las mejores manos.' },
+    { name: 'Josh Allen', team: 'Bills', pos: 'QB', stat: 'Datos de ejemplo', op: 'Corre, lanza y aguanta golpes. Es medio equipo él solo.' },
+  ],
   'lal-gsw': [
     { name: 'LeBron James', team: 'Lakers', pos: 'AL', stat: '25.4 pts · 8.1 reb · 7.9 ast', op: 'El rey sigue mandando. Controla el ritmo del partido.' },
     { name: 'Stephen Curry', team: 'Warriors', pos: 'BA', stat: '27.8 pts · 4.9 triples/p', op: 'Si se calienta desde lejos, se acabó la discusión.' },
@@ -136,6 +200,8 @@ export const STATS: Record<string, MatchStats> = {
   'ame-chi': { rows: [['Goles por partido', 2.1, 1.4], ['Posesión %', 58, 47], ['Tiros a puerta/p', 6.2, 4.1], ['Goles recibidos/p', 0.8, 1.1]], pos: [['Ambos anotan', '58%'], ['Más de 2.5 goles', '52%'], ['América gana y ambos anotan', '27%']] },
   'tig-mty': { rows: [['Posesión hoy %', 44, 56], ['Tiros a puerta', 3, 7], ['Córners', 2, 5], ['Tarjetas', 2, 1]], pos: [['Habrá otro gol', '71%'], ['Monterrey anota el siguiente', '46%'], ['Termina empatado', '38%']] },
   'dod-yan': { rows: [['Carreras/juego', 5.4, 4.9], ['AVG equipo', 0.262, 0.251], ['ERA abridores', 3.12, 3.65], ['HR en playoffs', 18, 15]], pos: [['Más de 8.5 carreras', '49%'], ['Dodgers gana por 2+', '31%'], ['Hay home run de Ohtani', '34%']] },
+  'ars-mci': { rows: [['Goles por partido', 1.9, 2.3], ['Posesión %', 52, 61], ['Tiros a puerta/p', 5.4, 6.1], ['Goles recibidos/p', 0.7, 0.9]], pos: [['Menos de 2.5 goles', '54%'], ['Ambos anotan', '51%'], ['Empate al medio tiempo', '41%']] },
+  'kc-buf': { rows: [['Puntos/p', 26.4, 27.1], ['Yardas/p', 361, 374], ['Puntos permitidos/p', 19.8, 21.2], ['Pérdidas de balón', 7, 9]], pos: [['Más de 48.5 puntos', '52%'], ['Se define por 3 o menos', '36%'], ['Habrá touchdown de Mahomes por tierra', '22%']] },
   'lal-gsw': { rows: [['Puntos/p', 114.2, 117.6], ['Triples/p', 11.8, 15.1], ['Rebotes/p', 45.3, 43.9], ['% tiro de campo', 48.1, 46.7]], pos: [['Más de 228.5 puntos', '55%'], ['Curry 5+ triples', '47%'], ['Se define por 5 o menos', '41%']] },
 };
 

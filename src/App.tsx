@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DEMO, MODES, type Dataset } from './beto/data';
+import { DEMO, MODES, SPORTS, type Dataset, type Sport } from './beto/data';
 import { AVATAR_BASE, AVATAR_POINT } from './beto/poses';
 import { useBeto, type BetoSettings } from './beto/useBeto';
 import { BetoChat } from './components/BetoChat';
@@ -62,6 +62,9 @@ export function App({ settings }: { settings: BetoSettings }) {
   const dataset = useDataset(settings.dataEndpoint);
   const beto = useBeto(settings, dataset);
   const real = dataset.source !== 'demo';
+  const [sport, setSport] = useState<Sport | 'todos'>('todos');
+  const shown = dataset.matches.filter(m => sport === 'todos' || (m.deporte ?? 'futbol') === sport).slice(0, 6);
+  const sportsWithGames = (Object.keys(SPORTS) as Sport[]).filter(k => dataset.matches.some(m => (m.deporte ?? 'futbol') === k));
 
   return (
     <div className="page">
@@ -76,8 +79,8 @@ export function App({ settings }: { settings: BetoSettings }) {
           <div className="site__nav">
             <div className="site__logo">BIG BOLA</div>
             <nav className="site__links"><span>Deportes</span><span>Partidos</span><span>Casino</span><span>Mi equipo</span></nav>
-            <div className={'site__badge' + (real ? ' site__badge--live' : '')} title={dataset.notice || (real ? 'Partidos reales de Liga MX vía ' + (dataset.source === 'thesportsdb' ? 'TheSportsDB' : 'API-Football') : 'Datos de ejemplo')}>
-              {real ? 'DATOS REALES · LIGA MX' : 'DATOS DE EJEMPLO'}
+            <div className={'site__badge' + (real ? ' site__badge--live' : '')} title={dataset.notice || (real ? 'Partidos reales: Liga MX, Premier League, NFL y MLB' : 'Datos de ejemplo')}>
+              {real ? 'DATOS REALES' : 'DATOS DE EJEMPLO'}
             </div>
           </div>
 
@@ -89,15 +92,16 @@ export function App({ settings }: { settings: BetoSettings }) {
                 <p className="hero__sub">Información, análisis y pasión por el deporte.</p>
               </div>
               <div className="sports">
-                <span className="sport sport--on">Fútbol</span>
-                <span className="sport">Béisbol</span>
-                <span className="sport">Básquetbol</span>
-                <span className="sport">Casino</span>
+                <button className={'sport' + (sport === 'todos' ? ' sport--on' : '')} onClick={() => setSport('todos')}>Todos</button>
+                {sportsWithGames.map(k => (
+                  <button key={k} className={'sport' + (sport === k ? ' sport--on' : '')} onClick={() => setSport(k)}>{SPORTS[k].label}</button>
+                ))}
+                <button className="sport" onClick={() => beto.ask('Recomiéndame un juego', { chip: 'Recomiéndame un juego', forceScript: true })}>Casino</button>
               </div>
               <div className="featured">
                 <div className="featured__title">Partidos destacados</div>
                 <div className="featured__grid">
-                  {dataset.matches.map(p => (
+                  {shown.map(p => (
                     <div key={p.id} className="match">
                       <div className="match__top">
                         <span className="match__liga">{p.liga}</span>

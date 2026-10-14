@@ -10,6 +10,7 @@ export type Card =
   | { type: 'bonus'; titulo: string; oferta: string; condiciones: string[]; promos: { titulo: string; detalle: string }[]; url: string }
   | { type: 'payments'; metodos: { metodo: string; detalle: string }[]; retiro: string; url: string }
   | { type: 'pause' }
+  | { type: 'guide'; name: string; tipo: string; como: string[]; tip: string; url: string }
   | { type: 'players'; titulo: string; list: { name: string; team: string; pos: string; stat: string; op: string }[] }
   | { type: 'stats'; local: string; visita: string; rows: { label: string; a: string; b: string; wa: string; wb: string }[]; pos: { label: string; pct: string }[] }
   | { type: 'links'; links: { name: string; desc: string; url: string }[] };
@@ -67,3 +68,6 @@ export const bonusCard = (full = false): Card => ({
 });
 
 export const paymentsCard = (): Card => ({ type: 'payments', metodos: PAGOS.depositos, retiro: PAGOS.retiro, url: PAGOS.url });
+
+/** Cómo se juega un juego de casino, explicado en corto. */
+export const guideCard = (g: CasinoGame): Card => ({ type: 'guide', name: g.name, tipo: g.tipo, como: g.como, tip: g.tip, url: g.url });

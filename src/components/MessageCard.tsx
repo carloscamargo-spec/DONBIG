@@ -65,6 +65,22 @@ export function MessageCard({ card, onPlay, onPause, onLimit }: { card: Card } &
         </div>
       );
 
+    case 'guide':
+      return (
+        <div className="card card--light card--pad">
+          <div className="card__head">
+            <span className="card__title">Cómo se juega {card.name}</span>
+            <span className="card__sub">{card.tipo}</span>
+          </div>
+          <ol className="guide__steps">
+            {card.como.map(c => <li key={c}>{c}</li>)}
+          </ol>
+          <div className="player__op"><strong>Tip de BETO · </strong>{card.tip}</div>
+          <a className="guide__link" href={card.url} target="_blank" rel="noopener noreferrer">Verlo en bigbola.mx ›</a>
+          <div className="card__note">+18 · Pruébalo en demo primero. Juega con responsabilidad.</div>
+        </div>
+      );
+
     case 'payments':
       return (
         <div className="card card--light card--list">
