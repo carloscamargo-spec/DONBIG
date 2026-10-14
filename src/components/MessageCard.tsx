@@ -38,11 +38,48 @@ export function MessageCard({ card, onPlay, onPause, onLimit }: { card: Card } &
           </div>
           {card.bars.map(b => (
             <div key={b.label} className="bar">
-              <div className="bar__labels"><span>{b.label}</span><span>{b.pct}</span></div>
+              <div className="bar__labels"><span>{b.label}</span><span>{b.momio && <em className="bar__odds">{b.momio}</em>}{b.pct}</span></div>
               <div className="bar__track"><div className="bar__fill" style={{ width: b.pct }} /></div>
             </div>
           ))}
-          <div className="card__note">Orientativo. Sin resultados garantizados.</div>
+          <div className="card__note">{card.bars.some(b => b.momio) ? 'Momios simulados para el demo, no son los de bigbola.mx. ' : ''}Orientativo. Sin resultados garantizados.</div>
+        </div>
+      );
+
+    case 'bonus':
+      return (
+        <div className="card card--bonus">
+          <div className="bonus__eyebrow">BIGBOLA.MX · {card.titulo.toUpperCase()}</div>
+          <div className="bonus__offer">{card.oferta}</div>
+          <ul className="bonus__list">
+            {card.condiciones.map(c => <li key={c}>{c}</li>)}
+          </ul>
+          {card.promos.length > 0 && (
+            <div className="bonus__promos">
+              <span className="bonus__promos-title">OTRAS PROMOS</span>
+              {card.promos.map(p => <div key={p.titulo}><strong>{p.titulo}:</strong> {p.detalle}</div>)}
+            </div>
+          )}
+          <a className="bonus__cta" href={card.url} target="_blank" rel="noopener noreferrer">Ver términos en bigbola.mx ›</a>
+          <div className="card__note card__note--dark">+18 · Revisa vigencia y T&C. Juega con responsabilidad.</div>
+        </div>
+      );
+
+    case 'payments':
+      return (
+        <div className="card card--light card--list">
+          <div className="card__head players__head">
+            <span className="card__title">Depósitos en Big Bola</span>
+          </div>
+          {card.metodos.map(m => (
+            <div key={m.metodo} className="list-row">
+              <div className="list-row__text">
+                <span className="list-row__name">{m.metodo}</span>
+                <span className="list-row__meta">{m.detalle}</span>
+              </div>
+            </div>
+          ))}
+          <div className="card__foot">{card.retiro} <a href={card.url} target="_blank" rel="noopener noreferrer">Más info ›</a></div>
         </div>
       );
 
@@ -55,10 +92,10 @@ export function MessageCard({ card, onPlay, onPause, onLimit }: { card: Card } &
                 <span className="list-row__name">{g.name}</span>
                 <span className="list-row__meta">{g.meta}</span>
               </div>
-              <button className="btn-play" onClick={() => onPlay(g.name)}>Jugar</button>
+              <a className="btn-play" href={g.url} target="_blank" rel="noopener noreferrer" onClick={() => onPlay(g.name)}>Jugar</a>
             </div>
           ))}
-          <div className="card__foot">Catálogo de ejemplo. +18.</div>
+          <div className="card__foot">Juegos de bigbola.mx · +18.</div>
         </div>
       );
 
@@ -124,13 +161,13 @@ export function MessageCard({ card, onPlay, onPause, onLimit }: { card: Card } &
       return (
         <div className="card card--light card--list">
           {card.links.map(l => (
-            <div key={l.name} className="list-row list-row--link">
+            <a key={l.name} className="list-row list-row--link" href={l.url} target="_blank" rel="noopener noreferrer">
               <div className="list-row__text">
                 <span className="list-row__name">{l.name}</span>
                 <span className="list-row__meta">{l.desc}</span>
               </div>
               <span className="list-row__chev">›</span>
-            </div>
+            </a>
           ))}
         </div>
       );

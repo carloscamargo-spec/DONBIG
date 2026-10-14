@@ -40,7 +40,8 @@ Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 mi
 
 ## Cómo está armado
 
-- `src/beto/data.ts` — tipos, `Dataset`, datos de ejemplo (`DEMO`), casino, sitio y frases.
+- `src/beto/data.ts` — tipos, `Dataset`, datos de ejemplo (`DEMO`), juegos y secciones de bigbola.mx, momios simulados y frases.
+- `src/beto/bigbola.ts` — conocimiento de bigbola.mx (bono de bienvenida, promos, pagos, deportes, casino, juego responsable). Revisado oct 2026: actualízalo cuando cambien las promos.
 - `src/server/apiFootball.ts` — conector de API-Football: partidos de Liga MX, pronóstico, forma, comparativa y goleadores, con caché.
 - `netlify/functions/partidos.ts` — `GET /api/partidos`.
 - `src/beto/cards.ts` — tarjetas del chat (partido, pronóstico, juegos, pausa, jugadores, estadísticas, secciones). Las usan el cliente y el servidor.
@@ -52,6 +53,6 @@ Todo pasa por una caché en Netlify Blobs: temporada 24 h, partidos 30 min (5 mi
 
 ## Pendiente antes de producción
 
-- Partidos de Liga MX ya son reales (API-Football). Faltan momios, casino, sitio y usuario (de ejemplo). Para producción, usar el proveedor con licencia de Big Bola.
+- Partidos de Liga MX ya son reales (API-Football). Los momios son simulados a partir del pronóstico; bono, promos, pagos y juegos vienen de bigbola.mx pero escritos a mano (no se sincronizan solos). Para producción, usar el proveedor con licencia de Big Bola.
 - Limitar tasa por usuario en `/api/beto` y verificar mayoría de edad / sesión.
 - `project/` conserva el paquete original de Claude Design como referencia.

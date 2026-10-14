@@ -3,8 +3,9 @@
 // devuelve { text, mode, card }. Si algo falla, el cliente usa respuestas armadas.
 import Anthropic from '@anthropic-ai/sdk';
 import type { Config } from '@netlify/functions';
-import { CASINO, SITIO, findMatch, findSections, isMode, norm, type Dataset, type ModeKey } from '../../src/beto/data';
-import { forecastCard, gamesCard, linksCard, matchCard, pauseCard, playersCard, statsCard, type Card } from '../../src/beto/cards';
+import { CASINO, SITIO, findMatch, findSections, isMode, norm, simOdds, type Dataset, type ModeKey } from '../../src/beto/data';
+import { BONO_BIENVENIDA, KNOWLEDGE, PAGOS, PROMOS } from '../../src/beto/bigbola';
+import { bonusCard, forecastCard, gamesCard, linksCard, matchCard, pauseCard, paymentsCard, playersCard, statsCard, type Card } from '../../src/beto/cards';
 import { getDataset } from '../../src/server/apiFootball';
 
 const MODEL = process.env.BETO_MODEL || 'claude-sonnet-5-5';
@@ -18,10 +19,13 @@ const equipo = { type: 'object' as const, properties: { equipo: { type: 'string'
 const TOOLS: Anthropic.Beta.BetaTool[] = [
   { name: 'buscar_partidos', description: 'Partidos de Liga MX en vivo, próximos y recién terminados, con hora o marcador, forma y un dato clave. Sin equipo devuelve todos.', input_schema: { type: 'object', properties: { equipo: { type: 'string' } } } },
   { name: 'pronostico_partido', description: 'Probabilidades orientativas (local, empate, visita) para un partido.', input_schema: equipo },
-  { name: 'juegos_casino', description: 'Catálogo de juegos de casino con RTP y volatilidad. estilo: tranquilo o adrenalina.', input_schema: { type: 'object', properties: { estilo: { type: 'string' } } } },
+  { name: 'juegos_casino', description: 'Juegos de casino de bigbola.mx (slots y casino en vivo) con nota de cada uno. estilo: tranquilo o adrenalina.', input_schema: { type: 'object', properties: { estilo: { type: 'string' } } } },
   { name: 'info_sitio', description: 'Secciones del sitio Big Bola (cuenta, depósitos, promociones, juego responsable, ayuda).', input_schema: { type: 'object', properties: { tema: { type: 'string' } } } },
   { name: 'jugadores_clave', description: 'Jugadores clave de un partido con estadísticas y la opinión de BETO sobre cada uno.', input_schema: equipo },
   { name: 'estadisticas_partido', description: 'Estadísticas comparadas de un partido y posibilidades (mercados) con probabilidad orientativa.', input_schema: equipo },
+  { name: 'momios_partido', description: 'Momios (cuotas) de un partido en formato decimal y americano. Son SIMULADOS a partir del pronóstico para el demo; dilo así.', input_schema: equipo },
+  { name: 'bono_bienvenida', description: 'Bono de bienvenida y promociones de bigbola.mx con sus condiciones (rollover, plazos, juegos que no cuentan). Muestra la tarjeta del bono.', input_schema: { type: 'object', properties: {} } },
+  { name: 'metodos_pago', description: 'Métodos de depósito y retiro de bigbola.mx con mínimos y máximos. Muestra la tarjeta de pagos.', input_schema: { type: 'object', properties: {} } },
   { name: 'sugerir_pausa', description: 'Muestra al usuario opciones de pausa de 10 minutos y de poner un límite. Úsala ante rachas de pérdida o intención de recuperar.', input_schema: { type: 'object', properties: {} } },
 ];
 
@@ -67,6 +71,17 @@ function runTool(name: string, input: Record<string, unknown>, ds: Dataset): { r
       if (!p || !ds.stats[p.id]) return { result: 'Sin estadísticas para ese equipo.' };
       return { result: JSON.stringify(ds.stats[p.id]), card: statsCard(p, ds) };
     }
+    case 'momios_partido': {
+      const p = find('equipo');
+      if (!p) return { result: 'Sin datos para ese equipo.' };
+      if (!p.prob) return { result: 'No hay momios para ' + p.local + ' vs ' + p.visita + '.', card: matchCard(p) };
+      const [h, d, a] = p.prob.map(v => simOdds(v));
+      return { result: JSON.stringify({ partido: p.local + ' vs ' + p.visita, simulados: true, local: h, empate: d, visita: a }), card: forecastCard(p) };
+    }
+    case 'bono_bienvenida':
+      return { result: JSON.stringify({ bono: BONO_BIENVENIDA, promos: PROMOS }), card: bonusCard(true) };
+    case 'metodos_pago':
+      return { result: JSON.stringify(PAGOS), card: paymentsCard() };
     case 'sugerir_pausa':
       return { result: 'Tarjeta de pausa mostrada.', card: pauseCard() };
     default:
@@ -92,7 +107,10 @@ const systemPrompt = (intensity: string) =>
   '- Si el usuario quiere recuperar pérdidas, doblar o juega enojado: [REGANO] y usa sugerir_pausa.\n' +
   '- Regaña la decisión, nunca a la persona. Solo mayores de 18.\n' +
   '- La tarjeta con datos aparece sola debajo de tu mensaje; no repitas todos los números.\n' +
-  '- Responde de inmediato; es un chat en vivo.';
+  '- Responde de inmediato; es un chat en vivo.\n' +
+  '- Sobre bonos y promociones: explica la oferta con sus condiciones clave (rollover, plazo, juegos que no cuentan) y manda a confirmar vigencia en bigbola.mx. Nunca uses un bono como gancho para recuperar pérdidas ni presiones a depositar.\n' +
+  '- Los momios que das son simulados para el demo; si los mencionas, aclara que los reales están en bigbola.mx.\n\n' +
+  KNOWLEDGE;
 
 /** Valida el historial que manda el navegador: solo texto, roles alternados, empieza con user. */
 function parseHistory(raw: unknown): Anthropic.Beta.BetaMessageParam[] | null {
